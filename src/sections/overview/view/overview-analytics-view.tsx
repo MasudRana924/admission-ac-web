@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 import { Box } from '@mui/material';
 
+import { useNavigate } from 'react-router-dom';
+
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -21,6 +23,8 @@ import { EventsSection } from '../events-section';
 // ----------------------------------------------------------------------
 
 export function OverviewAnalyticsView() {
+  const navigate = useNavigate();
+
   return (
     <DashboardContent 
       maxWidth={false}
@@ -94,6 +98,7 @@ export function OverviewAnalyticsView() {
                   </Box>
                   <Button
                     variant="contained"
+                    onClick={() => navigate('/advisor-chat')}
                     sx={{
                       flexShrink: 0,
                       bgcolor: 'white',

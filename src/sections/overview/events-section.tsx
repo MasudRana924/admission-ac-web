@@ -1,11 +1,13 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+
+import { useNavigate } from 'react-router-dom';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -42,6 +44,8 @@ const events = [
 ];
 
 export function EventsSection() {
+  const navigate = useNavigate();
+
   return (
     <Box sx={{ width: '100%' }}>
       {/* Header */}
@@ -54,23 +58,19 @@ export function EventsSection() {
         }}
       >
         <Typography variant="h5">Events</Typography>
-        <Link
-          href="/events"
-          underline="none"
+        <Button
+          onClick={() => navigate('/events')}
+          endIcon={<Iconify icon="solar:alt-arrow-right-linear" width={20} />}
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
             color: 'primary.main',
             fontWeight: 600,
             '&:hover': {
-              opacity: 0.8,
+              bgcolor: 'primary.lighter',
             },
           }}
         >
           See All
-          <Iconify icon="solar:alt-arrow-right-linear" width={20} />
-        </Link>
+        </Button>
       </Box>
 
       {/* Event Cards */}
@@ -78,6 +78,7 @@ export function EventsSection() {
         {events.map((event) => (
           <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
             <Card
+              onClick={() => navigate(`/events/${event.id}`)}
               sx={{
                 height: '100%',
                 border: '1px solid',
@@ -181,5 +182,6 @@ export function EventsSection() {
     </Box>
   );
 }
+
 
 

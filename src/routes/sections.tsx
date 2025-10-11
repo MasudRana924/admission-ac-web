@@ -26,6 +26,12 @@ export const EditFoodPage = lazy(() => import('src/pages/foods/edit-food'));
 export const FoodDetailsPage = lazy(() => import('src/pages/foods/food-details'));
 export const ProfilePage = lazy(() => import('src/pages/profile/profile'));
 export const ChangePasswordPage = lazy(() => import('src/pages/auth/change-password'));
+export const AdvisorChatPage = lazy(() => import('src/pages/chat/advisor-chat'));
+export const InstitutionsPage = lazy(() => import('src/pages/institutions/institutions'));
+export const InstitutionDetailsPage = lazy(() => import('src/pages/institutions/institution-details'));
+export const EventsPage = lazy(() => import('src/pages/events/events'));
+export const EventDetailsPage = lazy(() => import('src/pages/events/event-details'));
+export const EventRegisterPage = lazy(() => import('src/pages/events/event-register'));
 export const Page404 = lazy(() => import('src/pages/error/page-not-found'));
 
 const renderFallback = () => (
@@ -127,6 +133,78 @@ export const routesSection: RouteObject[] = [
         <DashboardLayout>
           <Suspense fallback={renderFallback()}>
             <ChangePasswordPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'advisor-chat',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <AdvisorChatPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'institutions',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <InstitutionsPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'institutions/:id',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <InstitutionDetailsPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'events',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <EventsPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'events/:id',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <EventDetailsPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'events/:id/register',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <EventRegisterPage />
           </Suspense>
         </DashboardLayout>
       </ProtectedRoute>

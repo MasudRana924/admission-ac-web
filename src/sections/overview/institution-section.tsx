@@ -1,10 +1,12 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
+
+import { useNavigate } from 'react-router-dom';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -54,6 +56,8 @@ const getLogoColor = (logoType: string) => {
 const getInitials = (name: string) => name.charAt(0).toUpperCase();
 
 export function InstitutionSection() {
+  const navigate = useNavigate();
+
   return (
     <Box sx={{ width: '100%' }}>
       {/* Header */}
@@ -66,23 +70,19 @@ export function InstitutionSection() {
         }}
       >
         <Typography variant="h5">Institution</Typography>
-        <Link
-          href="/institutions"
-          underline="none"
+        <Button
+          onClick={() => navigate('/institutions')}
+          endIcon={<Iconify icon="solar:alt-arrow-right-linear" width={20} />}
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0.5,
             color: 'primary.main',
             fontWeight: 600,
             '&:hover': {
-              opacity: 0.8,
+              bgcolor: 'primary.lighter',
             },
           }}
         >
           See All
-          <Iconify icon="solar:alt-arrow-right-linear" width={20} />
-        </Link>
+        </Button>
       </Box>
 
       {/* Institution Cards */}
@@ -189,5 +189,6 @@ export function InstitutionSection() {
     </Box>
   );
 }
+
 
 
