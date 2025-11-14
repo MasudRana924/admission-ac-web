@@ -8,6 +8,6 @@ export type ConfigValue = {
 };
 
 export const CONFIG: ConfigValue = {
-  appName: 'Innovatica',
+  appName: 'BideshStudy',
   appVersion: packageJson.version,
 };

@@ -17,8 +17,8 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (credentials: LoginRequest) => authService.login(credentials),
     onSuccess: (data) => {
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
+      if (data.data?.token) {
+        localStorage.setItem('authToken', data.data.token);
         // Invalidate and refetch user data
         queryClient.invalidateQueries({ queryKey: queryKeys.user });
       }
@@ -45,8 +45,8 @@ export const useVerifyOtp = () => {
   return useMutation({
     mutationFn: (otpData: VerifyOtpRequest) => authService.verifyOtp(otpData),
     onSuccess: (data) => {
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
+      if (data.data?.token) {
+        localStorage.setItem('authToken', data.data.token);
         // Clear pending email from localStorage
         localStorage.removeItem('pendingEmail');
         // Invalidate and refetch user data

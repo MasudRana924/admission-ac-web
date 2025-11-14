@@ -15,13 +15,16 @@ export interface VerifyOtpRequest {
 }
 
 export interface AuthResponse {
+  success: boolean;
   message: string;
-  token?: string;
-  role?: string;
-  user?: {
-    id: string;
-    email: string;
-    name?: string;
+  data?: {
+    token: string;
+    user: {
+      id: string;
+      email: string;
+      role: string;
+      name?: string;
+    };
   };
 }
 

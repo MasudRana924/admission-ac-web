@@ -145,10 +145,19 @@ export function SignInView() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          mb: 5,
+          mb: 3,
         }}
       >
-        <Typography variant="h5">Sign in</Typography>
+        <Typography variant="h5">BideshStudy</Typography>
+      </Box>
+      <Box
+        sx={{
+          mb: 5,
+          display: 'flex',
+          justifyContent: 'flex-start',
+        }}
+      >
+        <Typography variant="h6">Sign in</Typography>
       </Box>
       {renderForm}
       <Box

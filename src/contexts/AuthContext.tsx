@@ -4,6 +4,8 @@ import { useEffect, useContext, useReducer, createContext } from 'react';
 
 import type { AuthResponse } from '../api/types';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 interface User {
   id: string;
   email: string;
@@ -147,7 +149,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       dispatch({ type: 'AUTH_START' });
       
-      const response = await fetch('https://tr-cafe.onrender.com/api/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,26 +159,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data: AuthResponse = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.message || 'Login failed');
       }
 
-      if (data.token) {
+      if (data.data?.token && data.data?.user) {
         // Create user object from available data
         const user: User = {
-          id: data.user?.id || 'unknown',
-          email,
-          name: data.user?.name,
-          role: data.role,
+          id: data.data.user.id,
+          email: data.data.user.email,
+          name: data.data.user.name,
+          role: data.data.user.role,
         };
 
         // Store in localStorage
-        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('userData', JSON.stringify(user));
         
         dispatch({
           type: 'AUTH_SUCCESS',
-          payload: { user, token: data.token },
+          payload: { user, token: data.data.token },
         });
       } else {
         throw new Error('No token received from server');
@@ -193,7 +195,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       dispatch({ type: 'AUTH_START' });
       
-      const response = await fetch('https://tr-cafe.onrender.com/api/register', {
+      const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -203,7 +205,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data: AuthResponse = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.message || 'Registration failed');
       }
 
@@ -227,7 +229,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       dispatch({ type: 'AUTH_START' });
       
-      const response = await fetch('https://tr-cafe.onrender.com/api/verify-otp', {
+      const response = await fetch(`${API_BASE_URL}/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -237,21 +239,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data: AuthResponse = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.message || 'OTP verification failed');
       }
 
-      if (data.token) {
+      if (data.data?.token && data.data?.user) {
         // Create user object from available data
         const user: User = {
-          id: data.user?.id || 'unknown',
-          email,
-          name: data.user?.name,
-          role: data.role,
+          id: data.data.user.id,
+          email: data.data.user.email,
+          name: data.data.user.name,
+          role: data.data.user.role,
         };
 
         // Store in localStorage
-        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('userData', JSON.stringify(user));
         
         // Clear pending email from localStorage
@@ -259,7 +261,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         dispatch({
           type: 'AUTH_SUCCESS',
-          payload: { user, token: data.token },
+          payload: { user, token: data.data.token },
         });
       } else {
         throw new Error('No token received from server');
