@@ -83,9 +83,7 @@ export const routesSection: RouteObject[] = [
     path: 'forgot-password',
     element: (
       <AuthRedirect>
-        <AuthLayout>
-          <ForgotPasswordPage />
-        </AuthLayout>
+        <ForgotPasswordPage />
       </AuthRedirect>
     ),
   },

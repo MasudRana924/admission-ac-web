@@ -16,7 +16,7 @@ import { ErrorAlert } from 'src/components/error-alert';
 import { LucideIcon } from 'src/components/lucide-icons';
 
 import logoImage from 'src/assets/logo.png';
-import splashImage from 'src/assets/splash.jpg';
+import splashImage from 'src/assets/splash.png';
 
 // ----------------------------------------------------------------------
 

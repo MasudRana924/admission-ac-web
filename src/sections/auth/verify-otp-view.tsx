@@ -15,7 +15,7 @@ import { Iconify } from 'src/components/iconify';
 import { ErrorAlert } from 'src/components/error-alert';
 
 import logoImage from 'src/assets/logo.png';
-import splashImage from 'src/assets/splash.jpg';
+import splashImage from 'src/assets/splash.png';
 
 // ----------------------------------------------------------------------
 
@@ -229,7 +229,6 @@ export function VerifyOtpView() {
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: 0.5,
               cursor: 'pointer',
               color: 'text.primary',
               mb: 4,
@@ -239,15 +238,6 @@ export function VerifyOtpView() {
             }}
           >
             <Iconify icon="solar:alt-arrow-left-outline" width={20} />
-            <Typography
-              variant="subtitle2"
-              sx={{
-                color: 'text.primary',
-                fontWeight: 600,
-              }}
-            >
-              Back to Sign in
-            </Typography>
           </Box>
 
           <Box
