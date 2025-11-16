@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 
-import { Logo } from './logo';
+import logoImage from 'src/assets/logo.png';
 
 // ----------------------------------------------------------------------
 
@@ -43,17 +43,23 @@ export function Preloader({ isLoading = true, onComplete }: PreloaderProps) {
         backgroundColor: 'background.default',
       }}
     >
-      <Logo
+      <Box
+        component="img"
+        src={logoImage}
+        alt="BideshStudy"
         sx={{
-          width: 80,
-          height: 80,
-          animation: 'logoSpin 2s linear infinite',
-          '@keyframes logoSpin': {
-            '0%': {
-              transform: 'rotate(0deg)',
+          width: 120,
+          height: 'auto',
+          objectFit: 'contain',
+          animation: 'logoPulse 2s ease-in-out infinite',
+          '@keyframes logoPulse': {
+            '0%, 100%': {
+              opacity: 1,
+              transform: 'scale(1)',
             },
-            '100%': {
-              transform: 'rotate(360deg)',
+            '50%': {
+              opacity: 0.8,
+              transform: 'scale(1.05)',
             },
           },
         }}

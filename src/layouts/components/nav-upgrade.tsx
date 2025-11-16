@@ -46,13 +46,13 @@ export function NavUpgrade({ sx, ...other }: StackProps) {
 
       <Box
         component="img"
-        alt="Innovatica dashboard"
+        alt="BideshStudy dashboard"
         src="/assets/illustrations/illustration-dashboard.webp"
         sx={{ width: 200, my: 2 }}
       />
 
       <Button
-        href="https://material-ui.com/store/items/innovatica-dashboard/"
+        href="https://material-ui.com/store/items/bideshstudy-dashboard/"
         target="_blank"
         variant="contained"
         color="inherit"

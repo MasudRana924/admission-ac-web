@@ -163,7 +163,7 @@ export function Logo({
         fontWeight="600"
         fontFamily="DM Sans Variable, sans-serif"
       >
-        Innovatica
+        BideshStudy
       </text>
     </svg>
   );

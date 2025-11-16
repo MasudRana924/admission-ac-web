@@ -16,6 +16,9 @@ import { useAuth } from 'src/contexts/AuthContext';
 import { ErrorAlert } from 'src/components/error-alert';
 import { LucideIcon } from 'src/components/lucide-icons';
 
+import logoImage from 'src/assets/logo.png';
+import splashImage from 'src/assets/splash.jpg';
+
 // ----------------------------------------------------------------------
 
 export function SignInView() {
@@ -138,55 +141,116 @@ export function SignInView() {
   );
 
   return (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        height: '100vh',
+        width: '100vw',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Left Side - Image */}
       <Box
         sx={{
-          gap: 1.5,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          mb: 3,
+          width: '50%',
+          height: '100%',
+          display: { xs: 'none', md: 'block' },
         }}
       >
-        <Typography variant="h5">BideshStudy</Typography>
-      </Box>
-      <Box
-        sx={{
-          mb: 5,
-          display: 'flex',
-          justifyContent: 'flex-start',
-        }}
-      >
-        <Typography variant="h6">Sign in</Typography>
-      </Box>
-      {renderForm}
-      <Box
-        sx={{
-          mt: 3,
-          textAlign: 'center',
-        }}
-      >
-        <Typography
-          variant="body2"
+        <Box
+          component="img"
+          src={splashImage}
+          alt="Splash"
           sx={{
-            color: 'text.secondary',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      </Box>
+
+      {/* Right Side - Form */}
+      <Box
+        sx={{
+          width: { xs: '100%', md: '50%' },
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 3,
+        }}
+      >
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: '420px',
           }}
         >
-          Don&apos;t have an account?
-          <Link 
-            variant="subtitle2" 
-            sx={{ 
-              ml: 0.5, 
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              opacity: isLoading ? 0.6 : 1,
-              pointerEvents: isLoading ? 'none' : 'auto'
-            }} 
-            onClick={handleSignUpClick}
+          <Box
+            sx={{
+              gap: 1.5,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              mb: 3,
+            }}
           >
-            Get started
-          </Link>
-        </Typography>
+            <Box
+              component="img"
+              src={logoImage}
+              alt="BideshStudy"
+              sx={{
+                width: 150,
+                height: 'auto',
+                objectFit: 'contain',
+                mb: 2,
+              }}
+            />
+          </Box>
+          <Box
+            sx={{
+              mb: 5,
+              display: 'flex',
+              justifyContent: 'flex-start',
+            }}
+          >
+            <Typography variant="h5">Sign in to BideshStudy</Typography>
+          </Box>
+          {renderForm}
+          <Box
+            sx={{
+              mt: 3,
+              textAlign: 'center',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
+              Don&apos;t have an account?
+              <Link 
+                variant="subtitle2" 
+                sx={{ 
+                  ml: 0.5, 
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.6 : 1,
+                  pointerEvents: isLoading ? 'none' : 'auto'
+                }} 
+                onClick={handleSignUpClick}
+              >
+                Get started
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
       </Box>
-    </>
+    </Box>
   );
 }

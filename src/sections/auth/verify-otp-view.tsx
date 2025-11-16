@@ -14,6 +14,9 @@ import { useAuth } from 'src/contexts/AuthContext';
 import { Iconify } from 'src/components/iconify';
 import { ErrorAlert } from 'src/components/error-alert';
 
+import logoImage from 'src/assets/logo.png';
+import splashImage from 'src/assets/splash.jpg';
+
 // ----------------------------------------------------------------------
 
 export function VerifyOtpView() {
@@ -171,63 +174,125 @@ export function VerifyOtpView() {
   );
 
   return (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        height: '100vh',
+        width: '100vw',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Left Side - Image */}
       <Box
-        onClick={handleSignInClick}
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 0.5,
-          cursor: 'pointer',
-          color: 'text.primary',
-          mb: 4,
-          '&:hover': {
-            opacity: 0.8,
-          },
+          width: '50%',
+          height: '100%',
+          display: { xs: 'none', md: 'block' },
         }}
       >
-        <Iconify icon="solar:alt-arrow-left-outline" width={20} />
-        <Typography
-          variant="subtitle2"
+        <Box
+          component="img"
+          src={splashImage}
+          alt="Splash"
           sx={{
-            color: 'text.primary',
-            fontWeight: 600,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
           }}
-        >
-          Back to Sign in
-        </Typography>
+        />
       </Box>
 
+      {/* Right Side - Form */}
       <Box
         sx={{
-          gap: 1.5,
+          width: { xs: '100%', md: '50%' },
+          height: '100%',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          mb: 5,
+          justifyContent: 'center',
+          p: 3,
         }}
       >
-        <Typography variant="h5">Verify OTP</Typography>
-      </Box>
-      {renderForm}
-      <Box
-        sx={{
-          mt: 3,
-          textAlign: 'center',
-        }}
-      >
-        <Typography
-          variant="body2"
+        <Box
           sx={{
-            color: 'text.secondary',
+            width: '100%',
+            maxWidth: '420px',
           }}
         >
-          Didn&apos;t receive the code?
-          <Link variant="subtitle2" sx={{ ml: 0.5, cursor: 'pointer' }} onClick={handleResendOtp}>
-            Resend
-          </Link>
-        </Typography>
+          <Box
+            onClick={handleSignInClick}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              cursor: 'pointer',
+              color: 'text.primary',
+              mb: 4,
+              '&:hover': {
+                opacity: 0.8,
+              },
+            }}
+          >
+            <Iconify icon="solar:alt-arrow-left-outline" width={20} />
+            <Typography
+              variant="subtitle2"
+              sx={{
+                color: 'text.primary',
+                fontWeight: 600,
+              }}
+            >
+              Back to Sign in
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              gap: 1.5,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              mb: 5,
+            }}
+          >
+            <Box
+              component="img"
+              src={logoImage}
+              alt="BideshStudy"
+              sx={{
+                width: 150,
+                height: 'auto',
+                objectFit: 'contain',
+                mb: 2,
+              }}
+            />
+            <Typography variant="h5">Verify OTP</Typography>
+          </Box>
+          {renderForm}
+          <Box
+            sx={{
+              mt: 3,
+              textAlign: 'center',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
+              Didn&apos;t receive the code?
+              <Link variant="subtitle2" sx={{ ml: 0.5, cursor: 'pointer' }} onClick={handleResendOtp}>
+                Resend
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
       </Box>
-    </>
+    </Box>
   );
 }

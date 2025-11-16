@@ -59,9 +59,7 @@ export const routesSection: RouteObject[] = [
     path: '/',
     element: (
       <AuthRedirect>
-        <AuthLayout>
-          <SignInPage />
-        </AuthLayout>
+        <SignInPage />
       </AuthRedirect>
     ),
   },
@@ -69,9 +67,7 @@ export const routesSection: RouteObject[] = [
     path: 'sign-up',
     element: (
       <AuthRedirect>
-        <AuthLayout>
-          <SignUpPage />
-        </AuthLayout>
+        <SignUpPage />
       </AuthRedirect>
     ),
   },
@@ -79,9 +75,7 @@ export const routesSection: RouteObject[] = [
     path: 'verify-otp',
     element: (
       <AuthRedirect>
-        <AuthLayout>
-          <VerifyOtpPage />
-        </AuthLayout>
+        <VerifyOtpPage />
       </AuthRedirect>
     ),
   },
