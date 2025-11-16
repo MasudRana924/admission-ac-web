@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -18,6 +20,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { DocumentUploadCard } from 'src/components';
+import { profileSchema } from 'src/schemas/profile-schema';
 
 // ----------------------------------------------------------------------
 
@@ -26,55 +29,56 @@ export default function ProfileView() {
   const [currentTab, setCurrentTab] = useState('primary');
   const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null);
 
-  const [formData, setFormData] = useState({
-    displayName: _myAccount.displayName,
-    email: _myAccount.email,
-    phone: '+1 (555) 123-4567',
-    address: '123 Main Street, New York, NY 10001',
-    bio: 'Full-stack developer with 5+ years of experience in React, Node.js, and cloud technologies.',
-    website: 'https://masudrana.dev',
-    company: 'Tech Solutions Inc.',
-    position: 'Senior Developer',
-    // MSC fields
-    mscInstitution: '',
-    mscSubject: '',
-    mscResult: '',
-    mscPassingYear: '',
-    // BSC fields
-    bscInstitution: '',
-    bscSubject: '',
-    bscResult: '',
-    bscPassingYear: '',
-    // HSC fields
-    hscInstitution: '',
-    hscGroup: '',
-    hscResult: '',
-    hscPassingYear: '',
-    // SSC fields
-    sscInstitution: '',
-    sscGroup: '',
-    sscResult: '',
-    sscPassingYear: '',
-    // Documents
-    mscDocument: null as File | null,
-    bscDocument: null as File | null,
-    hscDocument: null as File | null,
-    sscDocument: null as File | null,
-    passportDocument: null as File | null,
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(profileSchema),
+    defaultValues: {
+      displayName: _myAccount.displayName,
+      email: _myAccount.email,
+      phone: '+1 (555) 123-4567',
+      address: '123 Main Street, New York, NY 10001',
+      bio: 'Full-stack developer with 5+ years of experience in React, Node.js, and cloud technologies.',
+      website: 'https://masudrana.dev',
+      company: 'Tech Solutions Inc.',
+      position: 'Senior Developer',
+      // MSC fields
+      mscInstitution: '',
+      mscSubject: '',
+      mscResult: '',
+      mscPassingYear: '',
+      // BSC fields
+      bscInstitution: '',
+      bscSubject: '',
+      bscResult: '',
+      bscPassingYear: '',
+      // HSC fields
+      hscInstitution: '',
+      hscGroup: '',
+      hscResult: '',
+      hscPassingYear: '',
+      // SSC fields
+      sscInstitution: '',
+      sscGroup: '',
+      sscResult: '',
+      sscPassingYear: '',
+      // Documents
+      mscDocument: null as File | null,
+      bscDocument: null as File | null,
+      hscDocument: null as File | null,
+      sscDocument: null as File | null,
+      passportDocument: null as File | null,
+    },
   });
 
-  const handleInputChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: event.target.value,
-    }));
-  };
+  const formData = watch();
 
   const handleFileUpload = (field: string) => (file: File) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: file,
-    }));
+    setValue(field as any, file, { shouldValidate: true });
   };
 
   const handlePreview = (file: File | null) => {
@@ -91,11 +95,11 @@ export default function ProfileView() {
     setPreviewFile(null);
   };
 
-  const handleSubmit = useCallback(() => {
+  const onSubmit = useCallback((data: any) => {
     // Handle form submission here
-    console.log('Profile data:', formData);
+    console.log('Profile data:', data);
     // You can add a success notification here
-  }, [formData]);
+  }, []);
 
   return (
     <DashboardContent>
@@ -160,59 +164,89 @@ export default function ProfileView() {
                     Personal Information
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="displayName"
-                      label="Full Name"
-                      value={formData.displayName}
-                      onChange={handleInputChange('displayName')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Full Name"
+                          error={!!errors.displayName}
+                          helperText={errors.displayName?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="email"
-                      label="Email Address"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange('email')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Email Address"
+                          type="email"
+                          error={!!errors.email}
+                          helperText={errors.email?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="phone"
-                      label="Phone Number"
-                      value={formData.phone}
-                      onChange={handleInputChange('phone')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Phone Number"
+                          error={!!errors.phone}
+                          helperText={errors.phone?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="website"
-                      label="Website"
-                      value={formData.website}
-                      onChange={handleInputChange('website')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Website"
+                          error={!!errors.website}
+                          helperText={errors.website?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
-                  <TextField
-                    fullWidth
+                  <Controller
                     name="address"
-                    label="Address"
-                    value={formData.address}
-                    onChange={handleInputChange('address')}
-                    slotProps={{
-                      inputLabel: { shrink: true },
-                    }}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Address"
+                        error={!!errors.address}
+                        helperText={errors.address?.message}
+                        slotProps={{
+                          inputLabel: { shrink: true },
+                        }}
+                      />
+                    )}
                   />
                 </Box>
 
@@ -222,25 +256,37 @@ export default function ProfileView() {
                     Professional Information
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="company"
-                      label="Company"
-                      value={formData.company}
-                      onChange={handleInputChange('company')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Company"
+                          error={!!errors.company}
+                          helperText={errors.company?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="position"
-                      label="Position"
-                      value={formData.position}
-                      onChange={handleInputChange('position')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Position"
+                          error={!!errors.position}
+                          helperText={errors.position?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                 </Box>
@@ -250,17 +296,23 @@ export default function ProfileView() {
                   <Typography variant="subtitle1" sx={{ mb: 3, fontWeight: 'bold' }}>
                     About Me
                   </Typography>
-                  <TextField
-                    fullWidth
+                  <Controller
                     name="bio"
-                    label="Bio"
-                    multiline
-                    rows={4}
-                    value={formData.bio}
-                    onChange={handleInputChange('bio')}
-                    slotProps={{
-                      inputLabel: { shrink: true },
-                    }}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Bio"
+                        multiline
+                        rows={4}
+                        error={!!errors.bio}
+                        helperText={errors.bio?.message}
+                        slotProps={{
+                          inputLabel: { shrink: true },
+                        }}
+                      />
+                    )}
                   />
                 </Box>
               </>
@@ -275,47 +327,71 @@ export default function ProfileView() {
                     MSC (Master of Science)
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="mscInstitution"
-                      label="Institution Name"
-                      value={formData.mscInstitution}
-                      onChange={handleInputChange('mscInstitution')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Institution Name"
+                          error={!!errors.mscInstitution}
+                          helperText={errors.mscInstitution?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="mscSubject"
-                      label="Subject"
-                      value={formData.mscSubject}
-                      onChange={handleInputChange('mscSubject')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Subject"
+                          error={!!errors.mscSubject}
+                          helperText={errors.mscSubject?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                   <Box sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="mscResult"
-                      label="Result (CGPA/Grade)"
-                      value={formData.mscResult}
-                      onChange={handleInputChange('mscResult')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Result (CGPA/Grade)"
+                          error={!!errors.mscResult}
+                          helperText={errors.mscResult?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="mscPassingYear"
-                      label="Passing Year"
-                      value={formData.mscPassingYear}
-                      onChange={handleInputChange('mscPassingYear')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Passing Year"
+                          error={!!errors.mscPassingYear}
+                          helperText={errors.mscPassingYear?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                 </Box>
@@ -326,47 +402,71 @@ export default function ProfileView() {
                     BSC (Bachelor of Science)
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="bscInstitution"
-                      label="Institution Name"
-                      value={formData.bscInstitution}
-                      onChange={handleInputChange('bscInstitution')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Institution Name"
+                          error={!!errors.bscInstitution}
+                          helperText={errors.bscInstitution?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="bscSubject"
-                      label="Subject"
-                      value={formData.bscSubject}
-                      onChange={handleInputChange('bscSubject')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Subject"
+                          error={!!errors.bscSubject}
+                          helperText={errors.bscSubject?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                   <Box sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="bscResult"
-                      label="Result (CGPA/Grade)"
-                      value={formData.bscResult}
-                      onChange={handleInputChange('bscResult')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Result (CGPA/Grade)"
+                          error={!!errors.bscResult}
+                          helperText={errors.bscResult?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="bscPassingYear"
-                      label="Passing Year"
-                      value={formData.bscPassingYear}
-                      onChange={handleInputChange('bscPassingYear')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Passing Year"
+                          error={!!errors.bscPassingYear}
+                          helperText={errors.bscPassingYear?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                 </Box>
@@ -377,47 +477,71 @@ export default function ProfileView() {
                     HSC (Higher Secondary Certificate)
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="hscInstitution"
-                      label="Institution Name"
-                      value={formData.hscInstitution}
-                      onChange={handleInputChange('hscInstitution')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Institution Name"
+                          error={!!errors.hscInstitution}
+                          helperText={errors.hscInstitution?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="hscGroup"
-                      label="Group (Science/Commerce/Arts)"
-                      value={formData.hscGroup}
-                      onChange={handleInputChange('hscGroup')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Group (Science/Commerce/Arts)"
+                          error={!!errors.hscGroup}
+                          helperText={errors.hscGroup?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                   <Box sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="hscResult"
-                      label="Result (GPA)"
-                      value={formData.hscResult}
-                      onChange={handleInputChange('hscResult')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Result (GPA)"
+                          error={!!errors.hscResult}
+                          helperText={errors.hscResult?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="hscPassingYear"
-                      label="Passing Year"
-                      value={formData.hscPassingYear}
-                      onChange={handleInputChange('hscPassingYear')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Passing Year"
+                          error={!!errors.hscPassingYear}
+                          helperText={errors.hscPassingYear?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                 </Box>
@@ -428,47 +552,71 @@ export default function ProfileView() {
                     SSC (Secondary School Certificate)
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="sscInstitution"
-                      label="Institution Name"
-                      value={formData.sscInstitution}
-                      onChange={handleInputChange('sscInstitution')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Institution Name"
+                          error={!!errors.sscInstitution}
+                          helperText={errors.sscInstitution?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="sscGroup"
-                      label="Group (Science/Commerce/Arts)"
-                      value={formData.sscGroup}
-                      onChange={handleInputChange('sscGroup')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Group (Science/Commerce/Arts)"
+                          error={!!errors.sscGroup}
+                          helperText={errors.sscGroup?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                   <Box sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="sscResult"
-                      label="Result (GPA)"
-                      value={formData.sscResult}
-                      onChange={handleInputChange('sscResult')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Result (GPA)"
+                          error={!!errors.sscResult}
+                          helperText={errors.sscResult?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
-                    <TextField
-                      fullWidth
+                    <Controller
                       name="sscPassingYear"
-                      label="Passing Year"
-                      value={formData.sscPassingYear}
-                      onChange={handleInputChange('sscPassingYear')}
-                      slotProps={{
-                        inputLabel: { shrink: true },
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Passing Year"
+                          error={!!errors.sscPassingYear}
+                          helperText={errors.sscPassingYear?.message}
+                          slotProps={{
+                            inputLabel: { shrink: true },
+                          }}
+                        />
+                      )}
                     />
                   </Box>
                 </Box>
@@ -491,7 +639,7 @@ export default function ProfileView() {
                   {/* MSC Document */}
                   <DocumentUploadCard
                     title="MSC Certificate"
-                    document={formData.mscDocument}
+                    document={formData.mscDocument || null}
                     onUpload={handleFileUpload('mscDocument')}
                     onPreview={handlePreview}
                     color="primary"
@@ -500,7 +648,7 @@ export default function ProfileView() {
                   {/* BSC Document */}
                   <DocumentUploadCard
                     title="BSC Certificate"
-                    document={formData.bscDocument}
+                    document={formData.bscDocument || null}
                     onUpload={handleFileUpload('bscDocument')}
                     onPreview={handlePreview}
                     color="info"
@@ -509,7 +657,7 @@ export default function ProfileView() {
                   {/* HSC Document */}
                   <DocumentUploadCard
                     title="HSC Certificate"
-                    document={formData.hscDocument}
+                    document={formData.hscDocument || null}
                     onUpload={handleFileUpload('hscDocument')}
                     onPreview={handlePreview}
                     color="warning"
@@ -518,7 +666,7 @@ export default function ProfileView() {
                   {/* SSC Document */}
                   <DocumentUploadCard
                     title="SSC Certificate"
-                    document={formData.sscDocument}
+                    document={formData.sscDocument || null}
                     onUpload={handleFileUpload('sscDocument')}
                     onPreview={handlePreview}
                     color="error"
@@ -527,7 +675,7 @@ export default function ProfileView() {
                   {/* Passport Document */}
                   <DocumentUploadCard
                     title="Passport"
-                    document={formData.passportDocument}
+                    document={formData.passportDocument || null}
                     onUpload={handleFileUpload('passportDocument')}
                     onPreview={handlePreview}
                     color="success"
@@ -542,7 +690,7 @@ export default function ProfileView() {
               <Button
                 variant="contained"
                 size="large"
-                onClick={handleSubmit}
+                onClick={handleSubmit(onSubmit)}
               >
                 Save Changes
               </Button>

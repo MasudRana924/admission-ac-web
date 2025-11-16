@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -15,19 +17,35 @@ import { useAuth } from 'src/contexts/AuthContext';
 
 import { ErrorAlert } from 'src/components/error-alert';
 import { LucideIcon } from 'src/components/lucide-icons';
+import { signInSchema } from 'src/schemas/auth-schema';
 
 import logoImage from 'src/assets/logo.png';
 import splashImage from 'src/assets/splash.png';
 
 // ----------------------------------------------------------------------
 
+type SignInFormData = {
+  email: string;
+  password: string;
+};
+
 export function SignInView() {
   const router = useRouter();
   const { login, isLoading, error, isAuthenticated, clearError } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormData>({
+    resolver: yupResolver(signInSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
   // Redirect if already authenticated and not loading
   useEffect(() => {
@@ -36,13 +54,9 @@ export function SignInView() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  const handleSignIn = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      return;
-    }
-    await login(email, password);
-  }, [email, password, login]);
+  const onSubmit = useCallback(async (data: SignInFormData) => {
+    await login(data.email, data.password);
+  }, [login]);
 
   const handleSignUpClick = useCallback(() => {
     router.push('/sign-up');
@@ -55,7 +69,7 @@ export function SignInView() {
   const renderForm = (
     <Box
       component="form"
-      onSubmit={handleSignIn}
+      onSubmit={handleSubmit(onSubmit)}
       sx={{
         display: 'flex',
         alignItems: 'flex-end',
@@ -64,19 +78,25 @@ export function SignInView() {
     >
       <ErrorAlert error={error} onClose={clearError} />
 
-      <TextField
-        fullWidth
+      <Controller
         name="email"
-        label="Email address"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        disabled={isLoading}
-        sx={{ mb: 3 }}
-        slotProps={{
-          inputLabel: { shrink: true },
-        }}
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Email address"
+            type="email"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            required
+            disabled={isLoading}
+            sx={{ mb: 3 }}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
+          />
+        )}
       />
 
       <Link 
@@ -93,28 +113,34 @@ export function SignInView() {
         Forgot password?
       </Link>
 
-      <TextField
-        fullWidth
+      <Controller
         name="password"
-        label="Password"
-        type={showPassword ? 'text' : 'password'}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        disabled={isLoading}
-        slotProps={{
-          inputLabel: { shrink: true },
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" disabled={isLoading}>
-                  <LucideIcon icon={showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
-        sx={{ mb: 3 }}
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Password"
+            type={showPassword ? 'text' : 'password'}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            required
+            disabled={isLoading}
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" disabled={isLoading}>
+                      <LucideIcon icon={showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mb: 3 }}
+          />
+        )}
       />
 
       <Button

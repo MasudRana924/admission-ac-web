@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -9,28 +11,37 @@ import { useRouter } from 'src/routes/hooks';
 
 import { Iconify } from 'src/components/iconify';
 import { ErrorAlert } from 'src/components/error-alert';
+import { forgotPasswordSchema } from 'src/schemas/auth-schema';
 
 import logoImage from 'src/assets/logo.png';
 import splashImage from 'src/assets/splash.png';
 
 // ----------------------------------------------------------------------
 
+type ForgotPasswordFormData = {
+  email: string;
+};
+
 export function ForgotPasswordView() {
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
   const [formError, setFormError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormData>({
+    resolver: yupResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
+    },
+  });
+
+  const onSubmit = useCallback(async (data: ForgotPasswordFormData) => {
     setFormError('');
-
-    if (!email) {
-      setFormError('Email is required');
-      return;
-    }
-
+    
     // Here you would typically make an API call
     setIsLoading(true);
     
@@ -38,9 +49,9 @@ export function ForgotPasswordView() {
     setTimeout(() => {
       setIsLoading(false);
       // You could show a success message or redirect
-      console.log('Password reset email sent to:', email);
+      console.log('Password reset email sent to:', data.email);
     }, 1000);
-  }, [email]);
+  }, []);
 
   const handleSignInClick = useCallback(() => {
     router.push('/');
@@ -49,7 +60,7 @@ export function ForgotPasswordView() {
   const renderForm = (
     <Box
       component="form"
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       sx={{
         display: 'flex',
         alignItems: 'flex-end',
@@ -61,19 +72,25 @@ export function ForgotPasswordView() {
         onClose={() => setFormError('')} 
       />
 
-      <TextField
-        fullWidth
+      <Controller
         name="email"
-        label="Email address"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        disabled={isLoading}
-        sx={{ mb: 3 }}
-        slotProps={{
-          inputLabel: { shrink: true },
-        }}
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Email address"
+            type="email"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            required
+            disabled={isLoading}
+            sx={{ mb: 3 }}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
+          />
+        )}
       />
 
       <Button

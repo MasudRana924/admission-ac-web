@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -11,17 +13,18 @@ import { useRouter } from 'src/routes/hooks';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
+import { changePasswordSchema } from 'src/schemas/auth-schema';
 
 // ----------------------------------------------------------------------
 
+type ChangePasswordFormData = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
 export default function ChangePasswordView() {
   const router = useRouter();
-
-  const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
 
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -29,12 +32,18 @@ export default function ChangePasswordView() {
     confirm: false,
   });
 
-  const handleInputChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: event.target.value,
-    }));
-  };
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ChangePasswordFormData>({
+    resolver: yupResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
+  });
 
   const handleTogglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
     setShowPasswords(prev => ({
@@ -43,25 +52,14 @@ export default function ChangePasswordView() {
     }));
   };
 
-  const handleSubmit = useCallback(() => {
+  const onSubmit = useCallback((data: ChangePasswordFormData) => {
     // Handle form submission here
-    console.log('Password change data:', formData);
-    
-    // Basic validation
-    if (formData.newPassword !== formData.confirmPassword) {
-      alert('New password and confirm password do not match!');
-      return;
-    }
-    
-    if (formData.newPassword.length < 8) {
-      alert('New password must be at least 8 characters long!');
-      return;
-    }
+    console.log('Password change data:', data);
     
     // You can add a success notification here
     alert('Password changed successfully!');
     router.push('/dashboard');
-  }, [formData, router]);
+  }, [router]);
 
   return (
     <DashboardContent>
@@ -88,97 +86,117 @@ export default function ChangePasswordView() {
             Change Password
           </Typography>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Box 
+            component="form"
+            onSubmit={handleSubmit(onSubmit)}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
+          >
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Please enter your current password and choose a new password to update your account security.
             </Typography>
 
             {/* Current Password */}
-            <TextField
-              fullWidth
+            <Controller
               name="currentPassword"
-              label="Current Password"
-              type={showPasswords.current ? 'text' : 'password'}
-              value={formData.currentPassword}
-              onChange={handleInputChange('currentPassword')}
-              slotProps={{
-                inputLabel: { shrink: true },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <Button
-                    onClick={() => handleTogglePasswordVisibility('current')}
-                    sx={{ minWidth: 'auto', p: 1 }}
-                  >
-                    <Iconify 
-                      icon={showPasswords.current ? 'solar:eye-closed-bold' : 'solar:eye-bold'} 
-                      width={20} 
-                    />
-                  </Button>
-                ),
-              }}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Current Password"
+                  type={showPasswords.current ? 'text' : 'password'}
+                  error={!!errors.currentPassword}
+                  helperText={errors.currentPassword?.message}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <Button
+                        onClick={() => handleTogglePasswordVisibility('current')}
+                        sx={{ minWidth: 'auto', p: 1 }}
+                      >
+                        <Iconify 
+                          icon={showPasswords.current ? 'solar:eye-closed-bold' : 'solar:eye-bold'} 
+                          width={20} 
+                        />
+                      </Button>
+                    ),
+                  }}
+                />
+              )}
             />
 
             {/* New Password */}
-            <TextField
-              fullWidth
+            <Controller
               name="newPassword"
-              label="New Password"
-              type={showPasswords.new ? 'text' : 'password'}
-              value={formData.newPassword}
-              onChange={handleInputChange('newPassword')}
-              slotProps={{
-                inputLabel: { shrink: true },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <Button
-                    onClick={() => handleTogglePasswordVisibility('new')}
-                    sx={{ minWidth: 'auto', p: 1 }}
-                  >
-                    <Iconify 
-                      icon={showPasswords.new ? 'solar:eye-closed-bold' : 'solar:eye-bold'} 
-                      width={20} 
-                    />
-                  </Button>
-                ),
-              }}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="New Password"
+                  type={showPasswords.new ? 'text' : 'password'}
+                  error={!!errors.newPassword}
+                  helperText={errors.newPassword?.message}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <Button
+                        onClick={() => handleTogglePasswordVisibility('new')}
+                        sx={{ minWidth: 'auto', p: 1 }}
+                      >
+                        <Iconify 
+                          icon={showPasswords.new ? 'solar:eye-closed-bold' : 'solar:eye-bold'} 
+                          width={20} 
+                        />
+                      </Button>
+                    ),
+                  }}
+                />
+              )}
             />
 
             {/* Confirm Password */}
-            <TextField
-              fullWidth
+            <Controller
               name="confirmPassword"
-              label="Confirm New Password"
-              type={showPasswords.confirm ? 'text' : 'password'}
-              value={formData.confirmPassword}
-              onChange={handleInputChange('confirmPassword')}
-              slotProps={{
-                inputLabel: { shrink: true },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <Button
-                    onClick={() => handleTogglePasswordVisibility('confirm')}
-                    sx={{ minWidth: 'auto', p: 1 }}
-                  >
-                    <Iconify 
-                      icon={showPasswords.confirm ? 'solar:eye-closed-bold' : 'solar:eye-bold'} 
-                      width={20} 
-                    />
-                  </Button>
-                ),
-              }}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Confirm New Password"
+                  type={showPasswords.confirm ? 'text' : 'password'}
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword?.message}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <Button
+                        onClick={() => handleTogglePasswordVisibility('confirm')}
+                        sx={{ minWidth: 'auto', p: 1 }}
+                      >
+                        <Iconify 
+                          icon={showPasswords.confirm ? 'solar:eye-closed-bold' : 'solar:eye-bold'} 
+                          width={20} 
+                        />
+                      </Button>
+                    ),
+                  }}
+                />
+              )}
             />
-
-            
 
             {/* Save Button */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
               <Button
                 variant="contained"
                 size="large"
-                onClick={handleSubmit}
+                type="submit"
               >
                 Save Changes
               </Button>

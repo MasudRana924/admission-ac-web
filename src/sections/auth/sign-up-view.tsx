@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -14,39 +16,48 @@ import { useAuth } from 'src/contexts/AuthContext';
 
 import { ErrorAlert } from 'src/components/error-alert';
 import { LucideIcon } from 'src/components/lucide-icons';
+import { signUpSchema } from 'src/schemas/auth-schema';
 
 import logoImage from 'src/assets/logo.png';
 import splashImage from 'src/assets/splash.png';
 
 // ----------------------------------------------------------------------
 
+type SignUpFormData = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
 export function SignUpView() {
   const router = useRouter();
-  const { register, isLoading, error, clearError } = useAuth();
+  const { register: registerUser, isLoading, error, clearError } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSignUp = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpFormData>({
+    resolver: yupResolver(signUpSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
 
-    if (!email || !password) {
-      return;
-    }
-
-    if (password.length < 6) {
-      return;
-    }
-
-    const success = await register(email, password);
+  const onSubmit = useCallback(async (data: SignUpFormData) => {
+    const success = await registerUser(data.email, data.password);
     if (success) {
       // Small delay to ensure loading state is cleared before navigation
       setTimeout(() => {
         router.push('/verify-otp');
       }, 100);
     }
-  }, [email, password, register, router]);
+  }, [registerUser, router]);
 
   const handleSignInClick = useCallback(() => {
     router.push('/');
@@ -55,7 +66,7 @@ export function SignUpView() {
   const renderForm = (
     <Box
       component="form"
-      onSubmit={handleSignUp}
+      onSubmit={handleSubmit(onSubmit)}
       sx={{
         display: 'flex',
         alignItems: 'flex-end',
@@ -67,43 +78,85 @@ export function SignUpView() {
         onClose={clearError} 
       />
 
-      <TextField
-        fullWidth
+      <Controller
         name="email"
-        label="Email address"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        disabled={isLoading}
-        sx={{ mb: 3 }}
-        slotProps={{
-          inputLabel: { shrink: true },
-        }}
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Email address"
+            type="email"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            required
+            disabled={isLoading}
+            sx={{ mb: 3 }}
+            slotProps={{
+              inputLabel: { shrink: true },
+            }}
+          />
+        )}
       />
 
-      <TextField
-        fullWidth
+      <Controller
         name="password"
-        label="Password"
-        type={showPassword ? 'text' : 'password'}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        disabled={isLoading}
-        slotProps={{
-          inputLabel: { shrink: true },
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" disabled={isLoading}>
-                  <LucideIcon icon={showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          },
-        }}
-        sx={{ mb: 3 }}
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Password"
+            type={showPassword ? 'text' : 'password'}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            required
+            disabled={isLoading}
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" disabled={isLoading}>
+                      <LucideIcon icon={showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mb: 3 }}
+          />
+        )}
+      />
+
+      <Controller
+        name="confirmPassword"
+        control={control}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            fullWidth
+            label="Confirm Password"
+            type={showConfirmPassword ? 'text' : 'password'}
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword?.message}
+            required
+            disabled={isLoading}
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" disabled={isLoading}>
+                      <LucideIcon icon={showConfirmPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mb: 3 }}
+          />
+        )}
       />
 
       <Button

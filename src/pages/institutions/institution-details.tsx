@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -23,6 +25,12 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { DocumentUploadCardCompact } from 'src/components/document-upload-card-compact';
+import {
+  primaryInformationSchema,
+  academicInformationSchema,
+  documentsSchema,
+  applicationFormSchema,
+} from 'src/schemas/application-form-schema';
 
 // ----------------------------------------------------------------------
 
@@ -36,32 +44,49 @@ export default function InstitutionDetailsView() {
   const [applyModalTab, setApplyModalTab] = useState('primary');
   const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null);
 
-  // Apply form data
-  const [applyFormData, setApplyFormData] = useState({
-    // Primary Information
-    displayName: _myAccount.displayName,
-    email: _myAccount.email,
-    phone: '',
-    address: '',
-    // Academic Information
-    bscInstitution: '',
-    bscSubject: '',
-    bscResult: '',
-    bscPassingYear: '',
-    hscInstitution: '',
-    hscGroup: '',
-    hscResult: '',
-    hscPassingYear: '',
-    sscInstitution: '',
-    sscGroup: '',
-    sscResult: '',
-    sscPassingYear: '',
-    // Documents
-    bscDocument: null as File | null,
-    hscDocument: null as File | null,
-    sscDocument: null as File | null,
-    passportDocument: null as File | null,
+  // Apply form with react-hook-form
+  const {
+    control,
+    handleSubmit,
+    trigger,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(applicationFormSchema),
+    defaultValues: {
+      // Primary Information
+      displayName: _myAccount.displayName,
+      email: _myAccount.email,
+      phone: '',
+      address: '',
+      // Academic Information
+      bscInstitution: '',
+      bscSubject: '',
+      bscResult: '',
+      bscPassingYear: '',
+      hscInstitution: '',
+      hscGroup: '',
+      hscResult: '',
+      hscPassingYear: '',
+      sscInstitution: '',
+      sscGroup: '',
+      sscResult: '',
+      sscPassingYear: '',
+      // Documents
+      bscDocument: null as File | null,
+      hscDocument: null as File | null,
+      sscDocument: null as File | null,
+      passportDocument: null as File | null,
+    },
   });
+
+  // Watch document fields for display
+  const bscDocument = watch('bscDocument');
+  const hscDocument = watch('hscDocument');
+  const sscDocument = watch('sscDocument');
+  const passportDocument = watch('passportDocument');
 
   // Dummy data
   const institution = {
@@ -136,18 +161,8 @@ export default function InstitutionDetailsView() {
     }
   };
 
-  const handleApplyInputChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setApplyFormData((prev) => ({
-      ...prev,
-      [field]: event.target.value,
-    }));
-  };
-
   const handleApplyFileUpload = (field: string) => (file: File) => {
-    setApplyFormData((prev) => ({
-      ...prev,
-      [field]: file,
-    }));
+    setValue(field as any, file, { shouldValidate: true });
   };
 
   const handlePreview = (file: File | null) => {
@@ -164,11 +179,62 @@ export default function InstitutionDetailsView() {
     setPreviewFile(null);
   };
 
-  const handleSubmitApplication = () => {
+  const handleNextFromPrimary = async () => {
+    const isValid = await trigger(['displayName', 'email', 'phone', 'address']);
+    if (isValid) {
+      setApplyModalTab('academic');
+    }
+  };
+
+  const handleNextFromAcademic = async () => {
+    const isValid = await trigger([
+      'bscInstitution',
+      'bscSubject',
+      'bscResult',
+      'bscPassingYear',
+      'hscInstitution',
+      'hscGroup',
+      'hscResult',
+      'hscPassingYear',
+      'sscInstitution',
+      'sscGroup',
+      'sscResult',
+      'sscPassingYear',
+    ]);
+    if (isValid) {
+      setApplyModalTab('documents');
+    }
+  };
+
+  const onSubmitApplication = async (data: any) => {
     // Handle application submission
-    console.log('Application data:', applyFormData);
+    console.log('Application data:', data);
     // Close modal after submission
     setApplyModalOpen(false);
+    // Reset form
+    reset({
+      displayName: _myAccount.displayName,
+      email: _myAccount.email,
+      phone: '',
+      address: '',
+      bscInstitution: '',
+      bscSubject: '',
+      bscResult: '',
+      bscPassingYear: '',
+      hscInstitution: '',
+      hscGroup: '',
+      hscResult: '',
+      hscPassingYear: '',
+      sscInstitution: '',
+      sscGroup: '',
+      sscResult: '',
+      sscPassingYear: '',
+      bscDocument: null,
+      hscDocument: null,
+      sscDocument: null,
+      passportDocument: null,
+    });
+    setApplyModalTab('primary');
   };
 
   const contact = {
@@ -631,38 +697,70 @@ export default function InstitutionDetailsView() {
             {applyModalTab === 'primary' && (
               <>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Full Name"
-                    value={applyFormData.displayName}
-                    onChange={handleApplyInputChange('displayName')}
+                  <Controller
+                    name="displayName"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Full Name"
+                        error={!!errors.displayName}
+                        helperText={errors.displayName?.message}
+                        required
+                      />
+                    )}
                   />
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={applyFormData.email}
-                    onChange={handleApplyInputChange('email')}
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Email"
+                        type="email"
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
+                        required
+                      />
+                    )}
                   />
-                  <TextField
-                    fullWidth
-                    label="Phone"
-                    value={applyFormData.phone}
-                    onChange={handleApplyInputChange('phone')}
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Phone"
+                        error={!!errors.phone}
+                        helperText={errors.phone?.message}
+                        required
+                      />
+                    )}
                   />
-                  <TextField
-                    fullWidth
-                    label="Address"
-                    multiline
-                    rows={3}
-                    value={applyFormData.address}
-                    onChange={handleApplyInputChange('address')}
+                  <Controller
+                    name="address"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Address"
+                        multiline
+                        rows={3}
+                        error={!!errors.address}
+                        helperText={errors.address?.message}
+                        required
+                      />
+                    )}
                   />
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                   <Button
                     variant="contained"
-                    onClick={() => setApplyModalTab('academic')}
+                    onClick={handleNextFromPrimary}
                     endIcon={<Iconify icon="solar:alt-arrow-right-linear" width={20} />}
                   >
                     Next
@@ -682,35 +780,67 @@ export default function InstitutionDetailsView() {
                     </Typography>
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Institution"
-                          value={applyFormData.bscInstitution}
-                          onChange={handleApplyInputChange('bscInstitution')}
+                        <Controller
+                          name="bscInstitution"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Institution"
+                              error={!!errors.bscInstitution}
+                              helperText={errors.bscInstitution?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Subject"
-                          value={applyFormData.bscSubject}
-                          onChange={handleApplyInputChange('bscSubject')}
+                        <Controller
+                          name="bscSubject"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Subject"
+                              error={!!errors.bscSubject}
+                              helperText={errors.bscSubject?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Result"
-                          value={applyFormData.bscResult}
-                          onChange={handleApplyInputChange('bscResult')}
+                        <Controller
+                          name="bscResult"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Result"
+                              error={!!errors.bscResult}
+                              helperText={errors.bscResult?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Passing Year"
-                          value={applyFormData.bscPassingYear}
-                          onChange={handleApplyInputChange('bscPassingYear')}
+                        <Controller
+                          name="bscPassingYear"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Passing Year"
+                              error={!!errors.bscPassingYear}
+                              helperText={errors.bscPassingYear?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                     </Grid>
@@ -725,35 +855,67 @@ export default function InstitutionDetailsView() {
                     </Typography>
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Institution"
-                          value={applyFormData.hscInstitution}
-                          onChange={handleApplyInputChange('hscInstitution')}
+                        <Controller
+                          name="hscInstitution"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Institution"
+                              error={!!errors.hscInstitution}
+                              helperText={errors.hscInstitution?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Group"
-                          value={applyFormData.hscGroup}
-                          onChange={handleApplyInputChange('hscGroup')}
+                        <Controller
+                          name="hscGroup"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Group"
+                              error={!!errors.hscGroup}
+                              helperText={errors.hscGroup?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Result"
-                          value={applyFormData.hscResult}
-                          onChange={handleApplyInputChange('hscResult')}
+                        <Controller
+                          name="hscResult"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Result"
+                              error={!!errors.hscResult}
+                              helperText={errors.hscResult?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Passing Year"
-                          value={applyFormData.hscPassingYear}
-                          onChange={handleApplyInputChange('hscPassingYear')}
+                        <Controller
+                          name="hscPassingYear"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Passing Year"
+                              error={!!errors.hscPassingYear}
+                              helperText={errors.hscPassingYear?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                     </Grid>
@@ -768,35 +930,67 @@ export default function InstitutionDetailsView() {
                     </Typography>
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Institution"
-                          value={applyFormData.sscInstitution}
-                          onChange={handleApplyInputChange('sscInstitution')}
+                        <Controller
+                          name="sscInstitution"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Institution"
+                              error={!!errors.sscInstitution}
+                              helperText={errors.sscInstitution?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Group"
-                          value={applyFormData.sscGroup}
-                          onChange={handleApplyInputChange('sscGroup')}
+                        <Controller
+                          name="sscGroup"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Group"
+                              error={!!errors.sscGroup}
+                              helperText={errors.sscGroup?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Result"
-                          value={applyFormData.sscResult}
-                          onChange={handleApplyInputChange('sscResult')}
+                        <Controller
+                          name="sscResult"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Result"
+                              error={!!errors.sscResult}
+                              helperText={errors.sscResult?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                          fullWidth
-                          label="Passing Year"
-                          value={applyFormData.sscPassingYear}
-                          onChange={handleApplyInputChange('sscPassingYear')}
+                        <Controller
+                          name="sscPassingYear"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              label="Passing Year"
+                              error={!!errors.sscPassingYear}
+                              helperText={errors.sscPassingYear?.message}
+                              required
+                            />
+                          )}
                         />
                       </Grid>
                     </Grid>
@@ -805,7 +999,7 @@ export default function InstitutionDetailsView() {
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                   <Button
                     variant="contained"
-                    onClick={() => setApplyModalTab('documents')}
+                    onClick={handleNextFromAcademic}
                     endIcon={<Iconify icon="solar:alt-arrow-right-linear" width={20} />}
                   >
                     Next
@@ -819,28 +1013,28 @@ export default function InstitutionDetailsView() {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <DocumentUploadCardCompact
                   title="BSC Certificate"
-                  document={applyFormData.bscDocument}
+                  document={bscDocument || null}
                   onUpload={handleApplyFileUpload('bscDocument')}
                   onPreview={handlePreview}
                   color="info"
                 />
                 <DocumentUploadCardCompact
                   title="HSC Certificate"
-                  document={applyFormData.hscDocument}
+                  document={hscDocument || null}
                   onUpload={handleApplyFileUpload('hscDocument')}
                   onPreview={handlePreview}
                   color="warning"
                 />
                 <DocumentUploadCardCompact
                   title="SSC Certificate"
-                  document={applyFormData.sscDocument}
+                  document={sscDocument || null}
                   onUpload={handleApplyFileUpload('sscDocument')}
                   onPreview={handlePreview}
                   color="error"
                 />
                 <DocumentUploadCardCompact
                   title="Passport"
-                  document={applyFormData.passportDocument}
+                  document={passportDocument || null}
                   onUpload={handleApplyFileUpload('passportDocument')}
                   onPreview={handlePreview}
                   color="success"
@@ -866,7 +1060,7 @@ export default function InstitutionDetailsView() {
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={handleSubmitApplication}
+                  onClick={handleSubmit(onSubmitApplication)}
                 >
                   Submit Application
                 </Button>
