@@ -107,7 +107,7 @@ export function VerifyOtpView() {
           onKeyDown={(e) => handleKeyDown(index, e)}
           inputProps={{
             maxLength: 1,
-            style: { textAlign: 'center', fontSize: '1.2rem' },
+            style: { textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' },
           }}
           sx={{
             width: 60,
@@ -140,7 +140,7 @@ export function VerifyOtpView() {
         sx={{
           color: 'text.secondary',
           mb: 3,
-          textAlign: 'center',
+          textAlign: 'left',
           width: '100%',
         }}
       >

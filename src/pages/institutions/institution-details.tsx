@@ -13,12 +13,16 @@ import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
+import IconButton from '@mui/material/IconButton';
+import Modal from '@mui/material/Modal';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { _myAccount } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
+import { DocumentUploadCardCompact } from 'src/components/document-upload-card-compact';
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +32,36 @@ export default function InstitutionDetailsView() {
   const [reviewName, setReviewName] = useState('');
   const [reviewRating, setReviewRating] = useState<number | null>(0);
   const [reviewComment, setReviewComment] = useState('');
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const [applyModalTab, setApplyModalTab] = useState('primary');
+  const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null);
+
+  // Apply form data
+  const [applyFormData, setApplyFormData] = useState({
+    // Primary Information
+    displayName: _myAccount.displayName,
+    email: _myAccount.email,
+    phone: '',
+    address: '',
+    // Academic Information
+    bscInstitution: '',
+    bscSubject: '',
+    bscResult: '',
+    bscPassingYear: '',
+    hscInstitution: '',
+    hscGroup: '',
+    hscResult: '',
+    hscPassingYear: '',
+    sscInstitution: '',
+    sscGroup: '',
+    sscResult: '',
+    sscPassingYear: '',
+    // Documents
+    bscDocument: null as File | null,
+    hscDocument: null as File | null,
+    sscDocument: null as File | null,
+    passportDocument: null as File | null,
+  });
 
   // Dummy data
   const institution = {
@@ -102,6 +136,41 @@ export default function InstitutionDetailsView() {
     }
   };
 
+  const handleApplyInputChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setApplyFormData((prev) => ({
+      ...prev,
+      [field]: event.target.value,
+    }));
+  };
+
+  const handleApplyFileUpload = (field: string) => (file: File) => {
+    setApplyFormData((prev) => ({
+      ...prev,
+      [field]: file,
+    }));
+  };
+
+  const handlePreview = (file: File | null) => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewFile({ file, url });
+    }
+  };
+
+  const handleClosePreview = () => {
+    if (previewFile) {
+      URL.revokeObjectURL(previewFile.url);
+    }
+    setPreviewFile(null);
+  };
+
+  const handleSubmitApplication = () => {
+    // Handle application submission
+    console.log('Application data:', applyFormData);
+    // Close modal after submission
+    setApplyModalOpen(false);
+  };
+
   const contact = {
     email: 'admissions@exampleuniversity.com',
     phone: '+1 234 567 890',
@@ -174,6 +243,7 @@ export default function InstitutionDetailsView() {
             variant="contained"
             size="large"
             startIcon={<Iconify icon="solar:pen-bold" width={20} />}
+            onClick={() => setApplyModalOpen(true)}
             sx={{ 
               px: { xs: 2, md: 4 },
               fontSize: { xs: '0.875rem', md: '1rem' },
@@ -517,6 +587,374 @@ export default function InstitutionDetailsView() {
           )}
         </Box>
       </Card>
+
+      {/* Apply Modal */}
+      <Modal
+        open={applyModalOpen}
+        onClose={() => setApplyModalOpen(false)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2,
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            maxWidth: 900,
+            width: '100%',
+            maxHeight: '90vh',
+            overflow: 'auto',
+          }}
+        >
+
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
+              Application Form
+            </Typography>
+
+            <Tabs
+              value={applyModalTab}
+              onChange={(e, newValue) => setApplyModalTab(newValue)}
+              sx={{ mb: 3 }}
+            >
+              <Tab label="Primary Information" value="primary" />
+              <Tab label="Academic" value="academic" />
+              <Tab label="Documents" value="documents" />
+            </Tabs>
+
+            {/* Primary Information Tab */}
+            {applyModalTab === 'primary' && (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="Full Name"
+                    value={applyFormData.displayName}
+                    onChange={handleApplyInputChange('displayName')}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    type="email"
+                    value={applyFormData.email}
+                    onChange={handleApplyInputChange('email')}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Phone"
+                    value={applyFormData.phone}
+                    onChange={handleApplyInputChange('phone')}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Address"
+                    multiline
+                    rows={3}
+                    value={applyFormData.address}
+                    onChange={handleApplyInputChange('address')}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setApplyModalTab('academic')}
+                    endIcon={<Iconify icon="solar:alt-arrow-right-linear" width={20} />}
+                  >
+                    Next
+                  </Button>
+                </Box>
+              </>
+            )}
+
+            {/* Academic Tab */}
+            {applyModalTab === 'academic' && (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {/* BSC */}
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+                      BSC Information
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Institution"
+                          value={applyFormData.bscInstitution}
+                          onChange={handleApplyInputChange('bscInstitution')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Subject"
+                          value={applyFormData.bscSubject}
+                          onChange={handleApplyInputChange('bscSubject')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Result"
+                          value={applyFormData.bscResult}
+                          onChange={handleApplyInputChange('bscResult')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Passing Year"
+                          value={applyFormData.bscPassingYear}
+                          onChange={handleApplyInputChange('bscPassingYear')}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+
+                  <Divider />
+
+                  {/* HSC */}
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+                      HSC Information
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Institution"
+                          value={applyFormData.hscInstitution}
+                          onChange={handleApplyInputChange('hscInstitution')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Group"
+                          value={applyFormData.hscGroup}
+                          onChange={handleApplyInputChange('hscGroup')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Result"
+                          value={applyFormData.hscResult}
+                          onChange={handleApplyInputChange('hscResult')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Passing Year"
+                          value={applyFormData.hscPassingYear}
+                          onChange={handleApplyInputChange('hscPassingYear')}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+
+                  <Divider />
+
+                  {/* SSC */}
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+                      SSC Information
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Institution"
+                          value={applyFormData.sscInstitution}
+                          onChange={handleApplyInputChange('sscInstitution')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Group"
+                          value={applyFormData.sscGroup}
+                          onChange={handleApplyInputChange('sscGroup')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Result"
+                          value={applyFormData.sscResult}
+                          onChange={handleApplyInputChange('sscResult')}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Passing Year"
+                          value={applyFormData.sscPassingYear}
+                          onChange={handleApplyInputChange('sscPassingYear')}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setApplyModalTab('documents')}
+                    endIcon={<Iconify icon="solar:alt-arrow-right-linear" width={20} />}
+                  >
+                    Next
+                  </Button>
+                </Box>
+              </>
+            )}
+
+            {/* Documents Tab */}
+            {applyModalTab === 'documents' && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <DocumentUploadCardCompact
+                  title="BSC Certificate"
+                  document={applyFormData.bscDocument}
+                  onUpload={handleApplyFileUpload('bscDocument')}
+                  onPreview={handlePreview}
+                  color="info"
+                />
+                <DocumentUploadCardCompact
+                  title="HSC Certificate"
+                  document={applyFormData.hscDocument}
+                  onUpload={handleApplyFileUpload('hscDocument')}
+                  onPreview={handlePreview}
+                  color="warning"
+                />
+                <DocumentUploadCardCompact
+                  title="SSC Certificate"
+                  document={applyFormData.sscDocument}
+                  onUpload={handleApplyFileUpload('sscDocument')}
+                  onPreview={handlePreview}
+                  color="error"
+                />
+                <DocumentUploadCardCompact
+                  title="Passport"
+                  document={applyFormData.passportDocument}
+                  onUpload={handleApplyFileUpload('passportDocument')}
+                  onPreview={handlePreview}
+                  color="success"
+                  icon="solar:passport-bold"
+                />
+              </Box>
+            )}
+
+            {/* Submit Button - Only show on Documents tab */}
+            {applyModalTab === 'documents' && (
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 2 }}>
+                <Button
+                  variant="text"
+                  onClick={() => setApplyModalOpen(false)}
+                  sx={{
+                    border: 'none',
+                    '&:hover': {
+                      border: 'none',
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleSubmitApplication}
+                >
+                  Submit Application
+                </Button>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Preview Modal */}
+      <Modal
+        open={!!previewFile}
+        onClose={handleClosePreview}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+          }}
+        >
+          <IconButton
+            onClick={handleClosePreview}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              bgcolor: 'background.paper',
+              boxShadow: 2,
+              zIndex: 1,
+              '&:hover': {
+                bgcolor: 'grey.100',
+              },
+            }}
+          >
+            <Iconify icon="solar:close-circle-bold" width={32} />
+          </IconButton>
+
+          <Box
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <Typography variant="h6" sx={{ pt: 1 }}>
+              {previewFile?.file.name}
+            </Typography>
+
+            {previewFile?.file.type.startsWith('image/') ? (
+              <Box
+                component="img"
+                src={previewFile.url}
+                alt="Preview"
+                sx={{
+                  maxWidth: '80vw',
+                  maxHeight: '70vh',
+                  objectFit: 'contain',
+                  borderRadius: 1,
+                }}
+              />
+            ) : (
+              <Box
+                component="iframe"
+                src={previewFile?.url}
+                title="PDF Preview"
+                sx={{
+                  width: '80vw',
+                  height: '70vh',
+                  border: 'none',
+                  borderRadius: 1,
+                }}
+              />
+            )}
+          </Box>
+        </Box>
+      </Modal>
     </DashboardContent>
   );
 }

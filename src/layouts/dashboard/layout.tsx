@@ -5,6 +5,7 @@ import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
+import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 
 import { _notifications } from 'src/_mock';
@@ -22,7 +23,7 @@ import { AccountPopover } from '../components/account-popover';
 import { UserProfileCard } from '../components/user-profile-card';
 import { NotificationsPopover } from '../components/notifications-popover';
 import { Footer } from '../components/footer';
-import { Logo } from 'src/components/logo';
+import logoImage from 'src/assets/logo.png';
 
 import type { MainSectionProps } from '../core/main-section';
 import type { HeaderSectionProps } from '../core/header-section';
@@ -68,7 +69,21 @@ export function DashboardLayout({
           This is an info Alert.
         </Alert>
       ),
-      leftArea: <Logo />,
+      leftArea: (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+            component="img"
+            src={logoImage}
+            alt="BideshStudy"
+            sx={{
+              height: 50,
+              width: 'auto',
+              objectFit: 'contain',
+            }}
+          />
+
+        </Box>
+      ),
       rightArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
           {/** @slot Notifications popover */}

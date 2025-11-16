@@ -17,3 +17,5 @@ export { ScrollProgress } from './scroll-progress';
 export { useSnackbar, SnackbarProvider } from './snackbar';
 export { usePopover, CustomPopover } from './custom-popover';
 export { usePreloader, PreloaderProvider } from './preloader-context';
+export { DocumentUploadCard } from './document-upload-card';
+export { DocumentUploadCardCompact } from './document-upload-card-compact';
