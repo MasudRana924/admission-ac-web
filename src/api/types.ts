@@ -28,6 +28,11 @@ export interface AuthResponse {
   };
 }
 
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+}
+
 // Food types
 export interface Food {
   _id: string;

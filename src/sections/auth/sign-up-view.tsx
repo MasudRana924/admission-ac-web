@@ -10,6 +10,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { useRouter } from 'src/routes/hooks';
 
+import { useAuth } from 'src/contexts/AuthContext';
+
 import { ErrorAlert } from 'src/components/error-alert';
 import { LucideIcon } from 'src/components/lucide-icons';
 
@@ -17,32 +19,31 @@ import { LucideIcon } from 'src/components/lucide-icons';
 
 export function SignUpView() {
   const router = useRouter();
+  const { register, isLoading, error, clearError } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [formError, setFormError] = useState('');
 
-  const handleSignUp = useCallback((e: React.FormEvent) => {
+  const handleSignUp = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError('');
 
     if (!email || !password) {
-      setFormError('All fields are required');
       return;
     }
 
     if (password.length < 6) {
-      setFormError('Password must be at least 6 characters');
       return;
     }
 
-    // Save email to localStorage for OTP verification
-    localStorage.setItem('pendingEmail', email);
-    
-    // Redirect to OTP verification page
-    router.push('/verify-otp');
-  }, [email, password, router]);
+    const success = await register(email, password);
+    if (success) {
+      // Small delay to ensure loading state is cleared before navigation
+      setTimeout(() => {
+        router.push('/verify-otp');
+      }, 100);
+    }
+  }, [email, password, register, router]);
 
   const handleSignInClick = useCallback(() => {
     router.push('/');
@@ -59,8 +60,8 @@ export function SignUpView() {
       }}
     >
       <ErrorAlert 
-        error={formError} 
-        onClose={() => setFormError('')} 
+        error={error} 
+        onClose={clearError} 
       />
 
       <TextField
@@ -71,6 +72,7 @@ export function SignUpView() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        disabled={isLoading}
         sx={{ mb: 3 }}
         slotProps={{
           inputLabel: { shrink: true },
@@ -85,12 +87,13 @@ export function SignUpView() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        disabled={isLoading}
         slotProps={{
           inputLabel: { shrink: true },
           input: {
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" disabled={isLoading}>
                   <LucideIcon icon={showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
                 </IconButton>
               </InputAdornment>
@@ -105,15 +108,20 @@ export function SignUpView() {
         size="large"
         type="submit"
         variant="contained"
+        disabled={isLoading}
         sx={{
-          bgcolor: 'primary.main',
-          color: 'primary.contrastText',
+          bgcolor: isLoading ? 'grey.400' : 'primary.main',
+          color: isLoading ? 'grey.600' : 'primary.contrastText',
           '&:hover': {
-            bgcolor: 'primary.dark',
+            bgcolor: isLoading ? 'grey.400' : 'primary.dark',
+          },
+          '&:disabled': {
+            bgcolor: 'grey.400',
+            color: 'grey.600',
           },
         }}
       >
-        Create Account
+        {isLoading ? 'Creating Account...' : 'Create Account'}
       </Button>
     </Box>
   );

@@ -1,8 +1,8 @@
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 
 import { useEffect, useContext, useReducer, createContext } from 'react';
 
-import type { AuthResponse } from '../api/types';
+import type { AuthResponse, RegisterResponse } from '../api/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -96,7 +96,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<boolean>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const userData = localStorage.getItem('userData');
-    
+
     if (token && userData) {
       try {
         const user = JSON.parse(userData);
@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } else {
       dispatch({ type: 'LOGOUT' });
     }
-    
+
     // Mark initial loading as complete
     dispatch({ type: 'INITIAL_LOADING_COMPLETE' });
   }, []);
@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (email: string, password: string) => {
     try {
       dispatch({ type: 'AUTH_START' });
-      
+
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -175,7 +175,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Store in localStorage
         localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('userData', JSON.stringify(user));
-        
+
         dispatch({
           type: 'AUTH_SUCCESS',
           payload: { user, token: data.data.token },
@@ -191,11 +191,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const register = async (email: string, password: string) => {
+  const register = async (email: string, password: string): Promise<boolean> => {
     try {
       dispatch({ type: 'AUTH_START' });
-      
-      const response = await fetch(`${API_BASE_URL}/register`, {
+
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         body: JSON.stringify({ email, password }),
       });
 
-      const data: AuthResponse = await response.json();
+      const data: RegisterResponse = await response.json();
 
       if (!response.ok || !data.success) {
         throw new Error(data.message || 'Registration failed');
@@ -211,25 +211,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       // Registration successful - save email to localStorage for OTP verification
       localStorage.setItem('pendingEmail', email);
-      
-      // Clear loading state and redirect to OTP verification
+
+      // Clear loading state
       dispatch({ type: 'INITIAL_LOADING_COMPLETE' });
       
-      // Redirect to OTP verification page
-      window.location.href = '/verify-otp';
+      return true;
     } catch (error) {
       dispatch({
         type: 'AUTH_FAILURE',
         payload: error instanceof Error ? error.message : 'Registration failed',
       });
+      return false;
     }
   };
 
   const verifyOtp = async (email: string, otp: string) => {
     try {
       dispatch({ type: 'AUTH_START' });
-      
-      const response = await fetch(`${API_BASE_URL}/verify-otp`, {
+
+      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -255,10 +255,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Store in localStorage
         localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('userData', JSON.stringify(user));
-        
+
         // Clear pending email from localStorage
         localStorage.removeItem('pendingEmail');
-        
+
         dispatch({
           type: 'AUTH_SUCCESS',
           payload: { user, token: data.data.token },
