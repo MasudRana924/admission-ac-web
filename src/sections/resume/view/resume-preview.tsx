@@ -40,6 +40,12 @@ interface ResumeData {
     liveUrl: string;
     githubRepo: string;
   }>;
+  references?: Array<{
+    name: string;
+    designation: string;
+    companyName: string;
+    phone: string;
+  }>;
   certifications?: Array<{
     name: string;
     issuer: string;
@@ -209,7 +215,7 @@ export function ResumePreview({ data }: ResumePreviewProps) {
             sx={{
               fontWeight: 'bold',
               mb: 2,
-              color: 'primary.main',
+              color: 'text.primary',
               textTransform: 'uppercase',
               fontSize: '0.95rem',
               letterSpacing: '0.5px',
@@ -298,7 +304,7 @@ export function ResumePreview({ data }: ResumePreviewProps) {
             sx={{
               fontWeight: 'bold',
               mb: 2,
-              color: 'primary.main',
+              color: 'text.primary',
               textTransform: 'uppercase',
               fontSize: '0.95rem',
               letterSpacing: '0.5px',
@@ -530,7 +536,7 @@ export function ResumePreview({ data }: ResumePreviewProps) {
             sx={{
               fontWeight: 'bold',
               mb: 1.5,
-              color: 'primary.main',
+              color: 'text.primary',
               textTransform: 'uppercase',
               fontSize: '0.95rem',
               letterSpacing: '0.5px',
@@ -543,8 +549,8 @@ export function ResumePreview({ data }: ResumePreviewProps) {
               <Box
                 key={index}
                 sx={{
-                  bgcolor: 'primary.lighter',
-                  color: 'primary.darker',
+                  bgcolor: 'grey.300',
+                  color: 'text.primary',
                   px: 1.5,
                   py: 0.5,
                   borderRadius: 1,
@@ -566,7 +572,7 @@ export function ResumePreview({ data }: ResumePreviewProps) {
             sx={{
               fontWeight: 'bold',
               mb: 1.5,
-              color: 'primary.main',
+              color: 'text.primary',
               textTransform: 'uppercase',
               fontSize: '0.95rem',
               letterSpacing: '0.5px',
@@ -651,6 +657,74 @@ export function ResumePreview({ data }: ResumePreviewProps) {
                   )}
                 </Box>
               )}
+            </Box>
+          ))}
+        </Box>
+      )}
+
+      {/* References Section */}
+      {data.references && data.references.length > 0 && (
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 'bold',
+              mb: 2,
+              color: 'text.primary',
+              textTransform: 'uppercase',
+              fontSize: '0.95rem',
+              letterSpacing: '0.5px',
+            }}
+          >
+            References
+          </Typography>
+          {data.references.map((ref, index) => (
+            <Box key={index} sx={{ mb: 2.5 }}>
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 'bold',
+                    mb: 0.5,
+                    fontSize: '1rem',
+                    color: 'text.primary',
+                  }}
+                >
+                  {ref.name}
+                </Typography>
+                {ref.phone && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                    <Iconify icon="solar:phone-bold" width={16} />
+                    <Typography variant="body2" sx={{ fontSize: '0.9rem', color: 'text.secondary' }}>
+                      {ref.phone}
+                    </Typography>
+                  </Box>
+                )}
+                {ref.designation && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      fontSize: '0.9rem',
+                      mb: 0.5,
+                    }}
+                  >
+                    {ref.designation}
+                  </Typography>
+                )}
+                {ref.companyName && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    {ref.companyName}
+                  </Typography>
+                )}
+              </Box>
+              {data.references && index < data.references.length - 1 && <Divider sx={{ mt: 2, borderWidth: 0.5 }} />}
             </Box>
           ))}
         </Box>

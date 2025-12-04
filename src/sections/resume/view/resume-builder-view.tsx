@@ -62,6 +62,14 @@ interface ResumeData {
     liveUrl: string;
     githubRepo: string;
   }>;
+
+  // References
+  references: Array<{
+    name: string;
+    designation: string;
+    companyName: string;
+    phone: string;
+  }>;
 }
 
 const defaultResumeData: ResumeData = {
@@ -78,6 +86,7 @@ const defaultResumeData: ResumeData = {
   experience: [],
   skills: [],
   projects: [],
+  references: [],
 };
 
 // ----------------------------------------------------------------------
@@ -190,6 +199,25 @@ export function ResumeBuilderView() {
       );
     },
     [formData.projects, setValue]
+  );
+
+  const handleAddReference = useCallback(() => {
+    const currentReferences = formData.references || [];
+    setValue('references', [
+      ...currentReferences,
+      { name: '', designation: '', companyName: '', phone: '' },
+    ]);
+  }, [formData.references, setValue]);
+
+  const handleRemoveReference = useCallback(
+    (index: number) => {
+      const currentReferences = formData.references || [];
+      setValue(
+        'references',
+        currentReferences.filter((_, i) => i !== index)
+      );
+    },
+    [formData.references, setValue]
   );
 
   const handleDownloadPDF = useCallback(async () => {
@@ -822,6 +850,98 @@ export function ResumeBuilderView() {
                       onClick={handleAddProject}
                     >
                       Add Project
+                    </Button>
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* References */}
+              <Accordion>
+                <AccordionSummary expandIcon={<Iconify icon="solar:alt-arrow-down-bold" width={20} />}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    References
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {(formData.references || []).map((ref, index) => (
+                      <Card key={index} sx={{ p: 2, bgcolor: 'background.neutral' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                          <Typography variant="subtitle2">Reference #{index + 1}</Typography>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleRemoveReference(index)}
+                            color="error"
+                          >
+                            <Iconify icon="solar:trash-bin-trash-bold" width={18} />
+                          </IconButton>
+                        </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                          <Controller
+                            name={`references.${index}.name`}
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                fullWidth
+                                size="small"
+                                label="Name"
+                                onChange={field.onChange}
+                                slotProps={{ inputLabel: { shrink: true } }}
+                              />
+                            )}
+                          />
+                          <Controller
+                            name={`references.${index}.designation`}
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                fullWidth
+                                size="small"
+                                label="Designation"
+                                onChange={field.onChange}
+                                slotProps={{ inputLabel: { shrink: true } }}
+                              />
+                            )}
+                          />
+                          <Controller
+                            name={`references.${index}.companyName`}
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                fullWidth
+                                size="small"
+                                label="Company Name"
+                                onChange={field.onChange}
+                                slotProps={{ inputLabel: { shrink: true } }}
+                              />
+                            )}
+                          />
+                          <Controller
+                            name={`references.${index}.phone`}
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                fullWidth
+                                size="small"
+                                label="Phone"
+                                onChange={field.onChange}
+                                slotProps={{ inputLabel: { shrink: true } }}
+                              />
+                            )}
+                          />
+                        </Box>
+                      </Card>
+                    ))}
+                    <Button
+                      variant="outlined"
+                      startIcon={<Iconify icon="solar:add-circle-bold" width={20} />}
+                      onClick={handleAddReference}
+                    >
+                      Add Reference
                     </Button>
                   </Box>
                 </AccordionDetails>
