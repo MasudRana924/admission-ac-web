@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
@@ -189,16 +192,64 @@ export function ResumeBuilderView() {
     [formData.projects, setValue]
   );
 
-  const handleDownloadPDF = useCallback(() => {
+  const handleDownloadPDF = useCallback(async () => {
     const element = document.getElementById('resume-preview');
     if (!element) return;
 
-    // Use window.print as fallback (browser's native print to PDF)
-    // For better PDF generation, you can install html2pdf.js:
-    // npm install html2pdf.js
-    // Then import and use it here
-    window.print();
-  }, []);
+    try {
+      // Create canvas from the resume preview element
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // Calculate PDF dimensions (A4 size)
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      // Create PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if content is longer than one page
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Generate filename from user's name or default
+      const fileName = resumeData.fullName
+        ? `${resumeData.fullName.replace(/\s+/g, '_')}_Resume.pdf`
+        : 'Resume.pdf';
+
+      // Direct download without preview - use output method
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Show error message instead of opening print dialog
+      alert('Failed to generate PDF. Please try again.');
+    }
+  }, [resumeData.fullName]);
 
   return (
     <DashboardContent 
