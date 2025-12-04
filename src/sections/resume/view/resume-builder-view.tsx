@@ -22,12 +22,14 @@ import { ResumePreview } from './resume-preview';
 interface ResumeData {
   // Personal Information
   fullName: string;
+  jobTitle: string;
   email: string;
   phone: string;
   address: string;
   linkedin: string;
   website: string;
   summary: string;
+  profilePicture: string;
 
   // Education
   education: Array<{
@@ -54,17 +56,21 @@ interface ResumeData {
     name: string;
     description: string;
     technologies: string;
+    liveUrl: string;
+    githubRepo: string;
   }>;
 }
 
 const defaultResumeData: ResumeData = {
   fullName: '',
+  jobTitle: '',
   email: '',
   phone: '',
   address: '',
   linkedin: '',
   website: '',
   summary: '',
+  profilePicture: '',
   education: [],
   experience: [],
   skills: [],
@@ -76,6 +82,7 @@ const defaultResumeData: ResumeData = {
 export function ResumeBuilderView() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [skillInput, setSkillInput] = useState('');
+  const [profileImagePreview, setProfileImagePreview] = useState<string>('');
 
   const { control, handleSubmit, watch, setValue } = useForm<ResumeData>({
     defaultValues: defaultResumeData,
@@ -85,8 +92,21 @@ export function ResumeBuilderView() {
 
   // Update resume data when form changes
   useEffect(() => {
-    setResumeData(formData);
-  }, [formData]);
+    setResumeData({ ...formData, profilePicture: profileImagePreview });
+  }, [formData, profileImagePreview]);
+
+  const handleImageUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setProfileImagePreview(result);
+        setValue('profilePicture', result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [setValue]);
 
   const onSubmit = useCallback((data: ResumeData) => {
     setResumeData(data);
@@ -154,7 +174,7 @@ export function ResumeBuilderView() {
     const currentProjects = formData.projects || [];
     setValue('projects', [
       ...currentProjects,
-      { name: '', description: '', technologies: '' },
+      { name: '', description: '', technologies: '', liveUrl: '', githubRepo: '' },
     ]);
   }, [formData.projects, setValue]);
 
@@ -181,23 +201,47 @@ export function ResumeBuilderView() {
   }, []);
 
   return (
-    <DashboardContent>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Resume Builder</Typography>
-        <Button
-          variant="contained"
-          startIcon={<Iconify icon="solar:download-bold" width={20} />}
-          onClick={handleDownloadPDF}
-          disabled={!resumeData.fullName}
-        >
-          Download PDF
-        </Button>
-      </Box>
+    <DashboardContent 
+      maxWidth={false}
+      sx={{
+        px: { xs: 2, md: 3 },
+      }}
+    >
+      <Box
+        sx={{
+          width: { xs: '100%', lg: '75%' },
+          mx: 'auto',
+        }}
+      >
+        <Box sx={{ mb: 3,mt:5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4">Resume Builder</Typography>
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="solar:download-bold" width={20} />}
+            onClick={handleDownloadPDF}
+            disabled={!resumeData.fullName}
+          >
+            Download PDF
+          </Button>
+        </Box>
 
-      <Grid container spacing={3}>
+        <Grid container spacing={3}>
         {/* Form Section */}
         <Grid size={{ xs: 12, md: 5 }}>
-          <Card sx={{ p: 3, position: 'sticky', top: 24, maxHeight: 'calc(100vh - 100px)', overflow: 'auto' }}>
+          <Card
+            sx={{
+              p: 3,
+              position: 'sticky',
+              top: 24,
+              maxHeight: 'calc(100vh - 100px)',
+              overflow: 'auto',
+              // Hide scrollbar but keep scroll functionality
+              scrollbarWidth: 'none', // Firefox
+              '&::-webkit-scrollbar': {
+                display: 'none', // Chrome, Safari, Edge
+              },
+            }}
+          >
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* Personal Information */}
               <Accordion defaultExpanded>
@@ -208,6 +252,44 @@ export function ResumeBuilderView() {
                 </AccordionSummary>
                 <AccordionDetails>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box>
+                      <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                        Profile Picture
+                      </Typography>
+                      <input
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="profile-picture-upload"
+                        type="file"
+                        onChange={handleImageUpload}
+                      />
+                      <label htmlFor="profile-picture-upload">
+                        <Button
+                          variant="outlined"
+                          component="span"
+                          fullWidth
+                          startIcon={<Iconify icon="solar:gallery-bold" width={20} />}
+                        >
+                          Upload Profile Picture
+                        </Button>
+                      </label>
+                      {profileImagePreview && (
+                        <Box
+                          component="img"
+                          src={profileImagePreview}
+                          alt="Profile preview"
+                          sx={{
+                            mt: 2,
+                            width: '100%',
+                            maxWidth: 200,
+                            height: 'auto',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                          }}
+                        />
+                      )}
+                    </Box>
                     <Controller
                       name="fullName"
                       control={control}
@@ -216,6 +298,20 @@ export function ResumeBuilderView() {
                           {...field}
                           fullWidth
                           label="Full Name"
+                          onChange={field.onChange}
+                          slotProps={{ inputLabel: { shrink: true } }}
+                        />
+                      )}
+                    />
+                    <Controller
+                      name="jobTitle"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="Job Title / Position"
+                          placeholder="e.g., BUSINESS CONSULTANT"
                           onChange={field.onChange}
                           slotProps={{ inputLabel: { shrink: true } }}
                         />
@@ -636,6 +732,36 @@ export function ResumeBuilderView() {
                               />
                             )}
                           />
+                          <Controller
+                            name={`projects.${index}.liveUrl`}
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                fullWidth
+                                size="small"
+                                label="Live URL"
+                                placeholder="https://example.com"
+                                onChange={field.onChange}
+                                slotProps={{ inputLabel: { shrink: true } }}
+                              />
+                            )}
+                          />
+                          <Controller
+                            name={`projects.${index}.githubRepo`}
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                fullWidth
+                                size="small"
+                                label="GitHub Repository"
+                                placeholder="https://github.com/username/repo"
+                                onChange={field.onChange}
+                                slotProps={{ inputLabel: { shrink: true } }}
+                              />
+                            )}
+                          />
                         </Box>
                       </Card>
                     ))}
@@ -663,6 +789,7 @@ export function ResumeBuilderView() {
           </Card>
         </Grid>
       </Grid>
+      </Box>
     </DashboardContent>
   );
 }
