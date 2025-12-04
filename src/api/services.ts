@@ -1,5 +1,5 @@
 import apiClient from './config';
-import { AUTH_ENDPOINTS, FOOD_ENDPOINTS } from './endpoints';
+import { AUTH_ENDPOINTS, FOOD_ENDPOINTS, NOTIFICATION_ENDPOINTS } from './endpoints';
 
 import type {
   LoginRequest,
@@ -8,6 +8,8 @@ import type {
   Food,
   RegisterRequest,
   VerifyOtpRequest,
+  RegisterDeviceTokenRequest,
+  NotificationResponse,
 } from './types';
 
 // Auth services
@@ -47,6 +49,16 @@ export const foodService = {
 
   updateFood: async (id: string, foodData: any): Promise<Food> => {
     const response = await apiClient.put(FOOD_ENDPOINTS.UPDATE_FOOD(id), foodData);
+    return response.data;
+  },
+};
+
+// Notification services
+export const notificationService = {
+  registerDeviceToken: async (
+    payload: RegisterDeviceTokenRequest
+  ): Promise<NotificationResponse> => {
+    const response = await apiClient.post(NOTIFICATION_ENDPOINTS.REGISTER_DEVICE_TOKEN, payload);
     return response.data;
   },
 };

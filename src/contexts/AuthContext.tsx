@@ -1,8 +1,11 @@
 import type { ReactNode } from 'react';
 
-import { useEffect, useContext, useReducer, createContext } from 'react';
+import { useEffect, useContext, useReducer, createContext, useCallback } from 'react';
 
 import type { AuthResponse, RegisterResponse } from '../api/types';
+import { notificationService } from '../api/services';
+import { requestFcmToken } from '../firebase/messaging';
+import { detectClientPlatform, getOrCreateDeviceId } from '../utils/device';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -119,6 +122,25 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  const registerDeviceToken = useCallback(async () => {
+    try {
+      const fcmToken = await requestFcmToken();
+      if (!fcmToken) {
+        return;
+      }
+
+      const deviceId = getOrCreateDeviceId();
+
+      await notificationService.registerDeviceToken({
+        token: fcmToken,
+        platform: detectClientPlatform(),
+        deviceId,
+      });
+    } catch (error) {
+      console.error('Failed to register device token', error);
+    }
+  }, []);
+
   // Initialize auth state from localStorage on app start
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -180,6 +202,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           type: 'AUTH_SUCCESS',
           payload: { user, token: data.data.token },
         });
+
+        void registerDeviceToken();
       } else {
         throw new Error('No token received from server');
       }
@@ -263,6 +287,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           type: 'AUTH_SUCCESS',
           payload: { user, token: data.data.token },
         });
+
+        void registerDeviceToken();
       } else {
         throw new Error('No token received from server');
       }

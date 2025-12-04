@@ -13,8 +13,17 @@ export const FOOD_ENDPOINTS = {
   UPDATE_FOOD: (id: string) => `/foods/${id}`,
 } as const;
 
+// Notification endpoints
+const REGISTER_DEVICE_TOKEN_PATH =
+  import.meta.env.VITE_REGISTER_DEVICE_ENDPOINT || '/notifications/register-device-token';
+
+export const NOTIFICATION_ENDPOINTS = {
+  REGISTER_DEVICE_TOKEN: REGISTER_DEVICE_TOKEN_PATH,
+} as const;
+
 // All endpoints
 export const ENDPOINTS = {
   ...AUTH_ENDPOINTS,
   ...FOOD_ENDPOINTS,
+  ...NOTIFICATION_ENDPOINTS,
 } as const;

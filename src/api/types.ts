@@ -57,3 +57,15 @@ export interface ApiResponse<T = any> {
   message?: string;
   error?: string;
 }
+
+// Notification types
+export interface RegisterDeviceTokenRequest {
+  token: string;
+  platform: string;
+  deviceId?: string | null;
+}
+
+export interface NotificationResponse {
+  success: boolean;
+  message: string;
+}
