@@ -126,6 +126,95 @@ export function OverviewAnalyticsView() {
           </Grid>
         </Grid>
 
+        {/* Resume Builder Card */}
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid size={{ xs: 12 }}>
+            <Card
+              sx={{
+                background: (theme) =>
+                  `linear-gradient(135deg, ${theme.vars.palette.info.main} 0%, ${theme.vars.palette.info.dark} 100%)`,
+                color: 'white',
+                cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 6,
+                },
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              onClick={() => navigate('/resume-builder')}
+            >
+              <CardContent
+                sx={{
+                  width: '100%',
+                  p: 3,
+                  '&:last-child': {
+                    pb: 3,
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 2,
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar
+                      sx={{
+                        width: 72,
+                        height: 72,
+                        bgcolor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                      }}
+                    >
+                      <Iconify icon="solar:document-text-bold-duotone" width={36} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h6" sx={{ color: 'white', mb: 0.5 }}>
+                        Resume Builder
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                        Create a professional resume with our easy-to-use builder
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/resume-builder');
+                    }}
+                    sx={{
+                      flexShrink: 0,
+                      bgcolor: 'white',
+                      color: 'info.main',
+                      '&:hover': {
+                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                      },
+                    }}
+                  >
+                    Create Resume
+                  </Button>
+                </Box>
+              </CardContent>
+              <Iconify
+                icon="solar:document-text-bold-duotone"
+                width={64}
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  color: 'rgba(255, 255, 255, 0.3)',
+                }}
+              />
+            </Card>
+          </Grid>
+        </Grid>
+
         <Box sx={{ mt: 5 }}>
           <WhyChooseUs />
         </Box>

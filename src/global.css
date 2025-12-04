@@ -55,3 +55,41 @@ input[type='number']::-webkit-inner-spin-button {
   margin: 0;
   -webkit-appearance: none;
 }
+
+/** **************************************
+* Print Styles for Resume Builder
+*************************************** */
+@media print {
+  /* Hide everything except the resume preview */
+  body * {
+    visibility: hidden;
+  }
+  
+  #resume-preview,
+  #resume-preview * {
+    visibility: visible;
+  }
+  
+  #resume-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Hide navigation, buttons, and form */
+  header,
+  nav,
+  button,
+  .MuiCard-root:not(#resume-preview),
+  .MuiGrid-root:has(.MuiCard-root:not(#resume-preview)) {
+    display: none !important;
+  }
+  
+  /* Ensure resume preview takes full page */
+  #resume-preview {
+    page-break-after: avoid;
+  }
+}

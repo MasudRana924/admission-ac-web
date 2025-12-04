@@ -103,7 +103,7 @@ export default function ProfileView() {
 
   return (
     <DashboardContent>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Button
           variant="text"
           size="large"
@@ -117,6 +117,14 @@ export default function ProfileView() {
           }}
         >
           Back
+        </Button>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => router.push('/resume-builder')}
+          startIcon={<Iconify icon="solar:document-text-bold-duotone" width={20} />}
+        >
+          Build Resume
         </Button>
       </Box>
 

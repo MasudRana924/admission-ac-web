@@ -32,6 +32,7 @@ export const InstitutionDetailsPage = lazy(() => import('src/pages/institutions/
 export const EventsPage = lazy(() => import('src/pages/events/events'));
 export const EventDetailsPage = lazy(() => import('src/pages/events/event-details'));
 export const EventRegisterPage = lazy(() => import('src/pages/events/event-register'));
+export const ResumeBuilderPage = lazy(() => import('src/pages/resume/resume-builder'));
 export const Page404 = lazy(() => import('src/pages/error/page-not-found'));
 
 const renderFallback = () => (
@@ -197,6 +198,18 @@ export const routesSection: RouteObject[] = [
         <DashboardLayout>
           <Suspense fallback={renderFallback()}>
             <EventRegisterPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'resume-builder',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <ResumeBuilderPage />
           </Suspense>
         </DashboardLayout>
       </ProtectedRoute>

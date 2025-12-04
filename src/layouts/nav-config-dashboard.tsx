@@ -15,5 +15,9 @@ export const navData = [
     path: '/dashboard',
     icon: <Iconify icon="solar:chart-bold-duotone" width={24} />,
   },
-
+  {
+    title: 'Resume Builder',
+    path: '/resume-builder',
+    icon: <Iconify icon="solar:document-text-bold-duotone" width={24} />,
+  },
 ];
