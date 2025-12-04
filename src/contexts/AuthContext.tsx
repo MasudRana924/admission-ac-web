@@ -7,7 +7,8 @@ import { notificationService } from '../api/services';
 import { requestFcmToken } from '../firebase/messaging';
 import { detectClientPlatform, getOrCreateDeviceId } from '../utils/device';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://admission-backend-1-xsai.onrender.com//api';
 
 interface User {
   id: string;

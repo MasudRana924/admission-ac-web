@@ -270,9 +270,14 @@ export function VerifyOtpView() {
             sx={{
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               cursor: 'pointer',
               color: 'text.primary',
               mb: 4,
+              width: 40,
+              height: 40,
+              bgcolor: 'grey.300',
+              borderRadius: '50%',
               '&:hover': {
                 opacity: 0.8,
               },
