@@ -14,6 +14,8 @@ import IconButton from '@mui/material/IconButton';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
@@ -30,6 +32,7 @@ interface ResumeData {
   phone: string;
   address: string;
   linkedin: string;
+  github: string;
   website: string;
   summary: string;
   profilePicture: string;
@@ -79,6 +82,7 @@ const defaultResumeData: ResumeData = {
   phone: '',
   address: '',
   linkedin: '',
+  github: '',
   website: '',
   summary: '',
   profilePicture: '',
@@ -91,10 +95,75 @@ const defaultResumeData: ResumeData = {
 
 // ----------------------------------------------------------------------
 
+interface TemplateSelectorProps {
+  selectedTemplate: 'default' | 'template1';
+  onTemplateChange: (template: 'default' | 'template1') => void;
+}
+
+function TemplateSelector({ selectedTemplate, onTemplateChange }: TemplateSelectorProps) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSelect = (template: 'default' | 'template1') => {
+    onTemplateChange(template);
+    handleClose();
+  };
+
+  return (
+    <>
+      <Button
+        variant="outlined"
+        onClick={handleClick}
+        endIcon={<Iconify icon="solar:alt-arrow-down-bold" width={16} />}
+        size="small"
+      >
+        Choose Template
+      </Button>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem 
+          onClick={() => handleSelect('default')}
+          selected={selectedTemplate === 'default'}
+        >
+          Default Template
+        </MenuItem>
+        <MenuItem 
+          onClick={() => handleSelect('template1')}
+          selected={selectedTemplate === 'template1'}
+        >
+          Template 1
+        </MenuItem>
+      </Menu>
+    </>
+  );
+}
+
+// ----------------------------------------------------------------------
+
 export function ResumeBuilderView() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [skillInput, setSkillInput] = useState('');
   const [profileImagePreview, setProfileImagePreview] = useState<string>('');
+  const [selectedTemplate, setSelectedTemplate] = useState<'default' | 'template1'>('default');
 
   const { control, handleSubmit, watch, setValue } = useForm<ResumeData>({
     defaultValues: defaultResumeData,
@@ -444,6 +513,19 @@ export function ResumeBuilderView() {
                           {...field}
                           fullWidth
                           label="LinkedIn"
+                          onChange={field.onChange}
+                          slotProps={{ inputLabel: { shrink: true } }}
+                        />
+                      )}
+                    />
+                    <Controller
+                      name="github"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label="GitHub"
                           onChange={field.onChange}
                           slotProps={{ inputLabel: { shrink: true } }}
                         />
@@ -953,10 +1035,16 @@ export function ResumeBuilderView() {
         {/* Preview Section */}
         <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ p: 3, position: 'sticky', top: 24 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Preview
-            </Typography>
-            <ResumePreview data={resumeData} />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6">
+                Preview
+              </Typography>
+              <TemplateSelector 
+                selectedTemplate={selectedTemplate} 
+                onTemplateChange={setSelectedTemplate} 
+              />
+            </Box>
+            <ResumePreview data={resumeData} template={selectedTemplate} />
           </Card>
         </Grid>
       </Grid>
