@@ -108,6 +108,10 @@ export function VerifyOtpView() {
     router.push('/');
   }, [router]);
 
+  const handleBackClick = useCallback(() => {
+    router.back();
+  }, [router]);
+
   // Focus first input on mount
   useEffect(() => {
     const firstInput = inputRefs.current[0]?.querySelector('input');
@@ -266,7 +270,7 @@ export function VerifyOtpView() {
           }}
         >
           <Box
-            onClick={handleSignInClick}
+            onClick={handleBackClick}
             sx={{
               display: 'flex',
               alignItems: 'center',

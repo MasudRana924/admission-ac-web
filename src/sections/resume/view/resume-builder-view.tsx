@@ -312,6 +312,7 @@ export function ResumeBuilderView() {
   const [skillInput, setSkillInput] = useState('');
   const [profileImagePreview, setProfileImagePreview] = useState<string>('');
   const [selectedTemplate, setSelectedTemplate] = useState<'default' | 'template1'>('default');
+  const [pdfPreviewRef, setPdfPreviewRef] = useState<HTMLDivElement | null>(null);
 
   const { control, handleSubmit, watch, setValue } = useForm<ResumeData>({
     defaultValues: defaultResumeData,
@@ -438,16 +439,52 @@ export function ResumeBuilderView() {
   );
 
   const handleDownloadPDF = useCallback(async () => {
-    const element = document.getElementById('resume-preview');
-    if (!element) return;
+    // Try to use hidden element first, fallback to visible
+    let element = pdfPreviewRef?.querySelector('#resume-preview') as HTMLElement;
+    let isHidden = false;
+    let originalStyles: { width: string; maxWidth: string; minWidth: string; padding: string } | null = null;
+    
+    if (element && pdfPreviewRef) {
+      // Temporarily make hidden element visible for html2canvas
+      pdfPreviewRef.style.visibility = 'visible';
+      pdfPreviewRef.style.position = 'fixed';
+      pdfPreviewRef.style.left = '0';
+      pdfPreviewRef.style.top = '0';
+      pdfPreviewRef.style.zIndex = '-1';
+      isHidden = true;
+      // Wait for element to be ready
+      await new Promise(resolve => setTimeout(resolve, 300));
+    } else {
+      // Fallback to visible element
+      element = document.getElementById('resume-preview') as HTMLElement;
+      if (!element) return;
+
+      // Store original styles
+      originalStyles = {
+        width: element.style.width,
+        maxWidth: element.style.maxWidth,
+        minWidth: element.style.minWidth,
+        padding: element.style.padding,
+      };
+
+      // Temporarily make element large for PDF generation
+      element.style.width = '800px';
+      element.style.maxWidth = '800px';
+      element.style.minWidth = '800px';
+      element.style.padding = '32px';
+
+      // Wait for styles to apply
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
 
     try {
-      // Create canvas from the resume preview element
+      // Create canvas from the element
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        width: 800,
       });
 
       const imgData = canvas.toDataURL('image/png');
@@ -489,12 +526,39 @@ export function ResumeBuilderView() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      
+      // Restore styles
+      if (isHidden && pdfPreviewRef) {
+        pdfPreviewRef.style.visibility = 'hidden';
+        pdfPreviewRef.style.position = 'absolute';
+        pdfPreviewRef.style.left = '-9999px';
+        pdfPreviewRef.style.top = '0';
+        pdfPreviewRef.style.zIndex = '';
+      } else if (originalStyles && element) {
+        element.style.width = originalStyles.width;
+        element.style.maxWidth = originalStyles.maxWidth;
+        element.style.minWidth = originalStyles.minWidth;
+        element.style.padding = originalStyles.padding;
+      }
     } catch (error) {
       console.error('Error generating PDF:', error);
+      // Restore styles on error
+      if (isHidden && pdfPreviewRef) {
+        pdfPreviewRef.style.visibility = 'hidden';
+        pdfPreviewRef.style.position = 'absolute';
+        pdfPreviewRef.style.left = '-9999px';
+        pdfPreviewRef.style.top = '0';
+        pdfPreviewRef.style.zIndex = '';
+      } else if (originalStyles && element) {
+        element.style.width = originalStyles.width;
+        element.style.maxWidth = originalStyles.maxWidth;
+        element.style.minWidth = originalStyles.minWidth;
+        element.style.padding = originalStyles.padding;
+      }
       // Show error message instead of opening print dialog
       alert('Failed to generate PDF. Please try again.');
     }
-  }, [resumeData.fullName]);
+  }, [resumeData.fullName, selectedTemplate, pdfPreviewRef]);
 
   return (
     <DashboardContent 
@@ -1197,6 +1261,28 @@ export function ResumeBuilderView() {
           </Card>
         </Grid>
       </Grid>
+      
+      {/* Hidden PDF Preview - Always large size for PDF generation */}
+      <Box
+        ref={setPdfPreviewRef}
+        sx={{
+          position: 'absolute',
+          left: '-9999px',
+          top: 0,
+          width: '800px',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+          '& #resume-preview': {
+            width: '800px !important',
+            maxWidth: '800px !important',
+            minWidth: '800px !important',
+            padding: '32px !important',
+            fontSize: '14px !important',
+          },
+        }}
+      >
+        <ResumePreview data={resumeData} template={selectedTemplate} />
+      </Box>
       </Box>
     </DashboardContent>
   );

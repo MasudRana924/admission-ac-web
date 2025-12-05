@@ -83,9 +83,10 @@ function DefaultTemplate({ data }: { data: ResumeData }) {
       id="resume-preview"
       sx={{
         bgcolor: 'background.paper',
-        p: 4,
+        p: { xs: 2, md: 4 },
         minHeight: '800px',
         fontFamily: 'Arial, sans-serif',
+        fontSize: { xs: '0.875rem', md: '1rem' },
         '@media print': {
           p: 3,
         },
@@ -779,9 +780,10 @@ function Template1({ data }: { data: ResumeData }) {
       id="resume-preview"
       sx={{
         bgcolor: 'background.paper',
-        p: 4,
+        p: { xs: 2, md: 4 },
         minHeight: '800px',
         fontFamily: 'Arial, sans-serif',
+        fontSize: { xs: '0.875rem', md: '1rem' },
         '@media print': {
           p: 3,
         },

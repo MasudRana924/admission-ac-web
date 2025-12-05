@@ -16,6 +16,7 @@ import { useAuth } from 'src/contexts/AuthContext';
 
 import { ErrorAlert } from 'src/components/error-alert';
 import { LucideIcon } from 'src/components/lucide-icons';
+import { Iconify } from 'src/components/iconify';
 import { signUpSchema } from 'src/schemas/auth-schema';
 
 import logoImage from 'src/assets/logo.png';
@@ -61,6 +62,10 @@ export function SignUpView() {
 
   const handleSignInClick = useCallback(() => {
     router.push('/');
+  }, [router]);
+
+  const handleBackClick = useCallback(() => {
+    router.back();
   }, [router]);
 
   const renderForm = (
@@ -233,6 +238,26 @@ export function SignUpView() {
             maxWidth: '420px',
           }}
         >
+          <Box
+            onClick={handleBackClick}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'text.primary',
+              mb: 4,
+              width: 40,
+              height: 40,
+              bgcolor: 'grey.300',
+              borderRadius: '50%',
+              '&:hover': {
+                opacity: 0.8,
+              },
+            }}
+          >
+            <Iconify icon="solar:alt-arrow-left-outline" width={20} />
+          </Box>
           <Box
             sx={{
               gap: 1.5,
