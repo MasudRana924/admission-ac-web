@@ -16,6 +16,10 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import Paper from '@mui/material/Paper';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
@@ -98,18 +102,45 @@ const defaultResumeData: ResumeData = {
 interface TemplateSelectorProps {
   selectedTemplate: 'default' | 'template1';
   onTemplateChange: (template: 'default' | 'template1') => void;
+  resumeData: ResumeData;
 }
 
-function TemplateSelector({ selectedTemplate, onTemplateChange }: TemplateSelectorProps) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+// Sample data for template previews
+const sampleResumeData: ResumeData = {
+  fullName: 'John Doe',
+  jobTitle: 'Software Engineer',
+  email: 'john.doe@example.com',
+  phone: '+1 234 567 8900',
+  address: '123 Main St, City, State',
+  linkedin: 'https://linkedin.com/in/johndoe',
+  github: 'https://github.com/johndoe',
+  website: 'https://johndoe.com',
+  summary: 'Experienced software engineer with a passion for building scalable applications.',
+  profilePicture: '',
+  education: [
+    { degree: 'Bachelor of Science', institution: 'University Name', year: '2020', gpa: '3.8' },
+  ],
+  experience: [
+    { title: 'Senior Developer', company: 'Tech Company', startDate: '2021', endDate: 'Present', description: 'Led development of key features.' },
+  ],
+  skills: ['JavaScript', 'React', 'Node.js', 'TypeScript'],
+  projects: [
+    { name: 'Project Name', description: 'Project description here', technologies: 'React, Node.js', liveUrl: '', githubRepo: '' },
+  ],
+  references: [
+    { name: 'Jane Smith', designation: 'Manager', companyName: 'Company Name', phone: '+1 234 567 8901' },
+  ],
+};
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+function TemplateSelector({ selectedTemplate, onTemplateChange, resumeData }: TemplateSelectorProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    setOpen(true);
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setOpen(false);
   };
 
   const handleSelect = (template: 'default' | 'template1') => {
@@ -125,34 +156,151 @@ function TemplateSelector({ selectedTemplate, onTemplateChange }: TemplateSelect
         endIcon={<Iconify icon="solar:alt-arrow-down-bold" width={16} />}
         size="small"
       >
-        Choose Template
+        {selectedTemplate === 'default' ? 'Default Template' : 'Template 1'}
       </Button>
-      <Menu
-        anchorEl={anchorEl}
+      <Dialog
         open={open}
         onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+        maxWidth="md"
+        fullWidth={false}
+        PaperProps={{
+          sx: {
+            maxHeight: '90vh',
+            maxWidth: '800px',
+            width: '100%',
+          },
         }}
       >
-        <MenuItem 
-          onClick={() => handleSelect('default')}
-          selected={selectedTemplate === 'default'}
+        <DialogTitle sx={{ pb: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">Choose a Template</Typography>
+            <IconButton onClick={handleClose} size="small">
+              <Iconify icon="solar:close-circle-bold" width={24} />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            overflow: 'hidden',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            scrollbarWidth: 'none',
+          }}
         >
-          Default Template
-        </MenuItem>
-        <MenuItem 
-          onClick={() => handleSelect('template1')}
-          selected={selectedTemplate === 'template1'}
-        >
-          Template 1
-        </MenuItem>
-      </Menu>
+          <Grid container spacing={3} sx={{ mt: 1 }}>
+            {/* Default Template Preview */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                onClick={() => handleSelect('default')}
+                sx={{
+                  p: 2,
+                  cursor: 'pointer',
+                  border: selectedTemplate === 'default' ? 2 : 1,
+                  borderColor: selectedTemplate === 'default' ? 'primary.main' : 'divider',
+                  bgcolor: selectedTemplate === 'default' ? 'primary.lighter' : 'background.paper',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    boxShadow: 4,
+                    bgcolor: 'action.hover',
+                  },
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                    Default Template
+                  </Typography>
+                  {selectedTemplate === 'default' && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'primary.main' }}>
+                      <Iconify icon="solar:check-circle-bold" width={20} />
+                      <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Selected</Typography>
+                    </Box>
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    height: '400px',
+                    overflow: 'hidden',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                    borderRadius: 1,
+                    p: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      transform: 'scale(0.45)',
+                      transformOrigin: 'top left',
+                      width: '222%',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <ResumePreview data={sampleResumeData} template="default" />
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Template 1 Preview */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper
+                onClick={() => handleSelect('template1')}
+                sx={{
+                  p: 2,
+                  cursor: 'pointer',
+                  border: selectedTemplate === 'template1' ? 2 : 1,
+                  borderColor: selectedTemplate === 'template1' ? 'primary.main' : 'divider',
+                  bgcolor: selectedTemplate === 'template1' ? 'primary.lighter' : 'background.paper',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    boxShadow: 4,
+                    bgcolor: 'action.hover',
+                  },
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                    Template 1
+                  </Typography>
+                  {selectedTemplate === 'template1' && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'primary.main' }}>
+                      <Iconify icon="solar:check-circle-bold" width={20} />
+                      <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Selected</Typography>
+                    </Box>
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    height: '400px',
+                    overflow: 'hidden',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                    borderRadius: 1,
+                    p: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      transform: 'scale(0.45)',
+                      transformOrigin: 'top left',
+                      width: '222%',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <ResumePreview data={sampleResumeData} template="template1" />
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
@@ -1041,7 +1189,8 @@ export function ResumeBuilderView() {
               </Typography>
               <TemplateSelector 
                 selectedTemplate={selectedTemplate} 
-                onTemplateChange={setSelectedTemplate} 
+                onTemplateChange={setSelectedTemplate}
+                resumeData={resumeData}
               />
             </Box>
             <ResumePreview data={resumeData} template={selectedTemplate} />
