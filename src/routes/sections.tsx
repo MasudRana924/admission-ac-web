@@ -29,6 +29,7 @@ export const ChangePasswordPage = lazy(() => import('src/pages/auth/change-passw
 export const AdvisorChatPage = lazy(() => import('src/pages/chat/advisor-chat'));
 export const InstitutionsPage = lazy(() => import('src/pages/institutions/institutions'));
 export const InstitutionDetailsPage = lazy(() => import('src/pages/institutions/institution-details'));
+export const InstitutionApplyPage = lazy(() => import('src/pages/institutions/institution-apply'));
 export const EventsPage = lazy(() => import('src/pages/events/events'));
 export const EventDetailsPage = lazy(() => import('src/pages/events/event-details'));
 export const EventRegisterPage = lazy(() => import('src/pages/events/event-register'));
@@ -162,6 +163,18 @@ export const routesSection: RouteObject[] = [
         <DashboardLayout>
           <Suspense fallback={renderFallback()}>
             <InstitutionDetailsPage />
+          </Suspense>
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: 'institutions/:id/apply',
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Suspense fallback={renderFallback()}>
+            <InstitutionApplyPage />
           </Suspense>
         </DashboardLayout>
       </ProtectedRoute>

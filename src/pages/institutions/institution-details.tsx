@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useParams } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -36,6 +37,7 @@ import {
 
 export default function InstitutionDetailsView() {
   const router = useRouter();
+  const { id } = useParams();
   const [currentTab, setCurrentTab] = useState('programs');
   const [reviewName, setReviewName] = useState('');
   const [reviewRating, setReviewRating] = useState<number | null>(0);
@@ -43,6 +45,7 @@ export default function InstitutionDetailsView() {
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [applyModalTab, setApplyModalTab] = useState('primary');
   const [previewFile, setPreviewFile] = useState<{ file: File; url: string } | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<typeof programs[0] | null>(null);
 
   // Apply form with react-hook-form
   const {
@@ -309,7 +312,16 @@ export default function InstitutionDetailsView() {
             variant="contained"
             size="large"
             startIcon={<Iconify icon="solar:pen-bold" width={20} />}
-            onClick={() => setApplyModalOpen(true)}
+            onClick={() => {
+              if (!selectedProgram) {
+                // Show alert or message to select a program first
+                return;
+              }
+              // Pass program name as query parameter
+              const programName = encodeURIComponent(selectedProgram.name);
+              router.push(`/institutions/${id}/apply?program=${programName}`);
+            }}
+            disabled={!selectedProgram}
             sx={{ 
               px: { xs: 2, md: 4 },
               fontSize: { xs: '0.875rem', md: '1rem' },
@@ -352,77 +364,97 @@ export default function InstitutionDetailsView() {
           {/* Programs Tab */}
           {currentTab === 'programs' && (
             <Grid container spacing={3}>
-              {programs.map((program, index) => (
-                <Grid key={index} size={{ xs: 12, md: 6 }}>
-                  <Card
-                    sx={{
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      p: 3,
-                      height: '100%',
-                    }}
-                  >
-                    <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-                      {program.name}
-                    </Typography>
-                    <Grid container spacing={2} sx={{ mb: 2 }}>
-                      <Grid size={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Iconify icon="solar:calendar-mark-bold" width={18} color="primary.main" />
-                          <Typography variant="body2" color="text.secondary">
-                            Intake
-                          </Typography>
-                        </Box>
-                        <Typography variant="body1" fontWeight={600}>
-                          {program.intake}
+              {programs.map((program, index) => {
+                const isSelected = selectedProgram?.name === program.name;
+                return (
+                  <Grid key={index} size={{ xs: 12, md: 6 }}>
+                    <Card
+                      onClick={() => setSelectedProgram(program)}
+                      sx={{
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        p: 3,
+                        height: '100%',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        bgcolor: 'background.paper',
+                        '&:hover': {
+                          boxShadow: (theme) => theme.shadows[4],
+                        },
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                          {program.name}
                         </Typography>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Iconify icon="solar:alarm-bold" width={18} color="error.main" />
-                          <Typography variant="body2" color="text.secondary">
-                            Deadline
+                        {isSelected && (
+                          <Chip
+                            icon={<Iconify icon="solar:check-circle-bold" width={16} />}
+                            label="Selected"
+                            color="primary"
+                            size="small"
+                          />
+                        )}
+                      </Box>
+                      <Grid container spacing={2} sx={{ mb: 2 }}>
+                        <Grid size={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Iconify icon="solar:calendar-mark-bold" width={18} color="primary.main" />
+                            <Typography variant="body2" color="text.secondary">
+                              Intake
+                            </Typography>
+                          </Box>
+                          <Typography variant="body1" fontWeight={600}>
+                            {program.intake}
                           </Typography>
-                        </Box>
-                        <Typography variant="body1" fontWeight={600}>
-                          {program.deadline}
-                        </Typography>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Iconify icon="solar:clock-circle-bold" width={18} color="warning.main" />
-                          <Typography variant="body2" color="text.secondary">
-                            Duration
+                        </Grid>
+                        <Grid size={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Iconify icon="solar:alarm-bold" width={18} color="error.main" />
+                            <Typography variant="body2" color="text.secondary">
+                              Deadline
+                            </Typography>
+                          </Box>
+                          <Typography variant="body1" fontWeight={600}>
+                            {program.deadline}
                           </Typography>
-                        </Box>
-                        <Typography variant="body1" fontWeight={600}>
-                          {program.duration}
-                        </Typography>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Iconify icon="solar:diploma-bold" width={18} color="success.main" />
-                          <Typography variant="body2" color="text.secondary">
-                            Degree
+                        </Grid>
+                        <Grid size={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Iconify icon="solar:clock-circle-bold" width={18} color="warning.main" />
+                            <Typography variant="body2" color="text.secondary">
+                              Duration
+                            </Typography>
+                          </Box>
+                          <Typography variant="body1" fontWeight={600}>
+                            {program.duration}
                           </Typography>
-                        </Box>
-                        <Typography variant="body1" fontWeight={600}>
-                          {program.degree}
-                        </Typography>
+                        </Grid>
+                        <Grid size={6}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <Iconify icon="solar:diploma-bold" width={18} color="success.main" />
+                            <Typography variant="body2" color="text.secondary">
+                              Degree
+                            </Typography>
+                          </Box>
+                          <Typography variant="body1" fontWeight={600}>
+                            {program.degree}
+                          </Typography>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                      Subjects
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {program.subjects.map((subject, idx) => (
-                        <Chip key={idx} label={subject} size="small" color="primary" variant="outlined" />
-                      ))}
-                    </Box>
-                  </Card>
-                </Grid>
-              ))}
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        Subjects
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {program.subjects.map((subject, idx) => (
+                          <Chip key={idx} label={subject} size="small" color="primary" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Card>
+                  </Grid>
+                );
+              })}
             </Grid>
           )}
 
@@ -679,19 +711,83 @@ export default function InstitutionDetailsView() {
         >
 
           <Box sx={{ p: 3 }}>
-            <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
-              Application Form
-            </Typography>
+            {/* Close Button */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                Application Form
+              </Typography>
+              <IconButton
+                onClick={() => setApplyModalOpen(false)}
+                sx={{
+                  color: 'text.secondary',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                }}
+              >
+                <Iconify icon="solar:close-circle-bold" width={24} />
+              </IconButton>
+            </Box>
 
-            <Tabs
-              value={applyModalTab}
-              onChange={(e, newValue) => setApplyModalTab(newValue)}
-              sx={{ mb: 3 }}
-            >
-              <Tab label="Primary Information" value="primary" />
-              <Tab label="Academic" value="academic" />
-              <Tab label="Documents" value="documents" />
-            </Tabs>
+            {/* Institution Information */}
+            <Card sx={{ mb: 3, p: 2, bgcolor: 'background.neutral' }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
+                Institution Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Iconify icon="solar:buildings-bold" width={20} color="primary.main" />
+                    <Typography variant="body2" color="text.secondary">
+                      Institution Name
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" fontWeight={600}>
+                    {institution.name}
+                  </Typography>
+                </Grid>
+                {selectedProgram && (
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Iconify icon="solar:diploma-bold" width={20} color="success.main" />
+                      <Typography variant="body2" color="text.secondary">
+                        Selected Program
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1" fontWeight={600}>
+                      {selectedProgram.name} ({selectedProgram.degree})
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Intake: {selectedProgram.intake} | Deadline: {selectedProgram.deadline}
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+            </Card>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Tabs
+                value={applyModalTab}
+                onChange={(e, newValue) => setApplyModalTab(newValue)}
+                sx={{ flex: 1 }}
+              >
+                <Tab label="Primary Information" value="primary" />
+                <Tab label="Academic" value="academic" />
+                <Tab label="Documents" value="documents" />
+              </Tabs>
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => {
+                  setApplyModalOpen(false);
+                  router.push(`/institutions/${id}/apply`);
+                }}
+                startIcon={<Iconify icon="solar:external-link-bold" width={18} />}
+                sx={{ ml: 2 }}
+              >
+                Full Page
+              </Button>
+            </Box>
 
             {/* Primary Information Tab */}
             {applyModalTab === 'primary' && (
@@ -1057,6 +1153,16 @@ export default function InstitutionDetailsView() {
                   }}
                 >
                   Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setApplyModalOpen(false);
+                    router.push(`/institutions/${id}/apply`);
+                  }}
+                  startIcon={<Iconify icon="solar:external-link-bold" width={20} />}
+                >
+                  Open in Full Page
                 </Button>
                 <Button
                   variant="contained"
