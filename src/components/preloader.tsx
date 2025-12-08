@@ -40,7 +40,7 @@ export function Preloader({ isLoading = true, onComplete }: PreloaderProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'background.default',
+        backgroundColor: 'white',
       }}
     >
       <Box

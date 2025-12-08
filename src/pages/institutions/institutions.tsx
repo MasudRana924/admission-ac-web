@@ -22,6 +22,7 @@ import { useRouter } from 'src/routes/hooks';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
+import { BackButton } from 'src/components/back-button';
 
 // ----------------------------------------------------------------------
 
@@ -124,20 +125,7 @@ export default function InstitutionsView() {
     <DashboardContent>
       {/* Header with Back Button */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 3 }}>
-        <Button
-          variant="text"
-          size="large"
-          onClick={() => router.back()}
-          startIcon={<Iconify icon="solar:alt-arrow-left-outline" width={20} />}
-          sx={{
-            color: 'text.primary',
-            '&:hover': {
-              backgroundColor: 'action.hover',
-            },
-          }}
-        >
-          Back
-        </Button>
+        <BackButton />
       </Box>
 
       {/* Page Title */}
