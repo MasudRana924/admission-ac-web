@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Environment-based configuration
 const ZENDESK_BASE_URL = import.meta.env.VITE_ZENDESK_BASE_URL || 
-  (import.meta.env.PROD ? 'https://zooberpayhelp.zendesk.com' : '/api/zendesk');
+  (import.meta.env.PROD ? '/api/zendesk' : '/api/zendesk');
 
 const ZENDESK_USERNAME = import.meta.env.VITE_ZENDESK_USERNAME || 'Sandeepsingh@zooberpay.com/token';
 const ZENDESK_TOKEN = import.meta.env.VITE_ZENDESK_TOKEN || 'LOGOLhjYkka77wu1MYVWjAjqa8DhUPlOXwz0Miwr';
@@ -12,16 +12,13 @@ export const zendeskClient = axios.create({
   baseURL: ZENDESK_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
   },
-  auth: {
-    username: ZENDESK_USERNAME,
-    password: ZENDESK_TOKEN,
-  },
-  // Enable CORS in production
-  ...(import.meta.env.PROD && {
-    withCredentials: false,
-    crossDomain: true,
+  // Add auth for development (Vite proxy), remove for production (serverless handles auth)
+  ...(import.meta.env.DEV && {
+    auth: {
+      username: ZENDESK_USERNAME,
+      password: ZENDESK_TOKEN,
+    },
   }),
 });
 
@@ -29,7 +26,7 @@ export const zendeskService = {
   getUserTickets: async (userId: string) => {
     try {
       const endpoint = import.meta.env.PROD 
-        ? `/api/v2/users/${userId}/tickets/requested.json`
+        ? `?path=/api/v2/users/${userId}/tickets/requested.json`
         : `/api/v2/users/${userId}/tickets/requested.json`;
       
       const response = await zendeskClient.get(endpoint);
