@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const ZENDESK_BASE_URL = 'https://zooberpayhelp.zendesk.com';
+// Use the proxy endpoint to avoid CORS issues
+const ZENDESK_BASE_URL = '/api/zendesk';
 
 // Create a separate axios instance for Zendesk API with basic auth
 export const zendeskClient = axios.create({
