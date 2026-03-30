@@ -14,6 +14,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { useRouter } from 'src/routes/hooks';
 
 import { useAuth } from 'src/contexts/AuthContext';
+import { zendeskService } from 'src/api/zendesk';
 
 import { ErrorAlert } from 'src/components/error-alert';
 import { LucideIcon } from 'src/components/lucide-icons';
@@ -46,6 +47,20 @@ export function SignInView() {
       password: '',
     },
   });
+
+  // Call Zendesk API when component mounts (user lands on sign-in page)
+  useEffect(() => {
+    const callZendeskAPI = async () => {
+      try {
+        const zendeskData = await zendeskService.getUserTickets('47713988723348');
+        console.log('Zendesk API Response:', zendeskData);
+      } catch (zendeskError) {
+        console.error('Zendesk API call failed:', zendeskError);
+      }
+    };
+
+    callZendeskAPI();
+  }, []);
 
   // Redirect if already authenticated and not loading
   useEffect(() => {
